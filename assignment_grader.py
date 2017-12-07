@@ -59,42 +59,56 @@ class MyWindow(Gtk.Window):
         self.h_box.pack_start(self.list_of_reasons, True, True, 0)
 
     def question_id_has_changed(self, widget, k):
-        pass
-        #self.grid_reasons[k - 1].set_text('asdf')
+        self.update_list_of_reasons_based_on_a_single_row(k)
 
     def points_has_changed(self, widget, k):
-        pass
-        #self.grid_reasons[k - 1].set_text('asdf')
-        question_id = self.grid_labels[k - 1].get_text()
-        point = int(self.grid_points[k - 1].get_text())
-        self.update_list_of_reasons(question_id, point)
+        self.update_list_of_reasons_based_on_a_single_row(k)
 
     def reason_has_changed(self, widget, k):
         pass
 
+    def update_list_of_reasons_based_on_a_single_row(self, k):
+        question_id = self.grid_labels[k - 1].get_text()
+        point_str = self.grid_points[k - 1].get_text()
+        try:
+            point = int(point_str)
+        except ValueError as e:
+            point = None
+        self.update_list_of_reasons(question_id, point)
+
     def update_list_of_reasons(self, question, point):
         self.list_of_matching_reasons = []
-        for graded_question in self.long_list_of_reasons:
-            if graded_question.question == question and \
-                            graded_question.point == point:
-                new_reason = "%d %s" % (graded_question.point, graded_question.reason)
+        if point is None:
+            for point_key in self.dict_of_reasons[question]:
+                for reason_key in self.dict_of_reasons[question][point_key]:
+                    multiplicity = self.dict_of_reasons[question][point_key][reason_key]
+                    new_reason = "%2d (%s) - %s" % (point_key, multiplicity, reason_key)
+                    self.list_of_matching_reasons.append(new_reason)
+        else:
+            for reason_key in self.dict_of_reasons[question][point]:
+                multiplicity = self.dict_of_reasons[question][point][reason_key]
+                new_reason = "%2d (%s) - %s" % (point, multiplicity, reason_key)
                 self.list_of_matching_reasons.append(new_reason)
         self.list_of_reasons_buffer.set_text('\n'.join(self.list_of_matching_reasons))
 
     def load_list_of_reasons(self, filename):
-        self.long_list_of_reasons = []
+        self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
         # agreg15	1a	2	Punkterne
         pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
         with open(filename) as file_handle:
             for line in file_handle:
                 res = pattern.match(line)
                 if res:
-                    reason = GradedQuestion(student=res.group(1),
-                                            question=res.group(2),
-                                            point=int(res.group(3)),
-                                            reason=res.group(4))
-                    self.long_list_of_reasons.append(reason)
-        print("Has loaded %d answers." % len(self.long_list_of_reasons))
+                    student = res.group(1)
+                    question = res.group(2)
+                    point = int(res.group(3))
+                    reason_temp = res.group(4)
+                    reason = GradedQuestion(student=student,
+                                            question=question,
+                                            point=point,
+                                            reason=reason_temp)
+                    self.dict_of_reasons[question][point][reason_temp] += 1
+        # print("Has loaded %d answers." % len(self.long_list_of_reasons))
 
 win = MyWindow()
 win.connect("delete-event", Gtk.main_quit)
