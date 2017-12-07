@@ -70,8 +70,9 @@ class MyWindow(Gtk.Window):
         pass
 
     def update_list_of_reasons_based_on_a_single_row(self, k):
-        question_id = self.grid_labels[k - 1].get_text()
-        point_str = self.grid_points[k - 1].get_text()
+        self.last_updated_row = k - 1
+        question_id = self.grid_labels[self.last_updated_row].get_text()
+        point_str = self.grid_points[self.last_updated_row].get_text()
         try:
             point = int(point_str)
         except ValueError as e:
@@ -103,24 +104,31 @@ class MyWindow(Gtk.Window):
             for line in file_handle:
                 res = pattern.match(line)
                 if res:
-                    student = res.group(1)
                     question = res.group(2)
                     point = int(res.group(3))
-                    reason_temp = res.group(4)
-                    reason = GradedQuestion(student=student,
-                                            question=question,
-                                            point=point,
-                                            reason=reason_temp)
-                    self.dict_of_reasons[question][point][reason_temp] += 1
-        # print("Has loaded %d answers." % len(self.long_list_of_reasons))
+                    reason = res.group(4)
+                    self.dict_of_reasons[question][point][reason] += 1
 
     def click_in_list_of_reasons(self, tag, widget, event, iter):
         if event.type == Gdk.EventType.BUTTON_PRESS:
-            end_iter = iter.copy()
-            end_iter.forward_to_tag_toggle(self.reason_tag)
-            iter.backward_to_tag_toggle(self.reason_tag)
-            clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
-            print(clicked_reason)
+            clicked_reason = self.get_content_of_reason_tag_indicated_by_iter(iter)
+            self.update_reason_for_current_question(clicked_reason)
+
+    def get_content_of_reason_tag_indicated_by_iter(self, iter):
+        end_iter = iter.copy()
+        end_iter.forward_to_tag_toggle(self.reason_tag)
+        iter.backward_to_tag_toggle(self.reason_tag)
+        clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
+        return clicked_reason
+
+    def update_reason_for_current_question(self, clicked_reason):
+        pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
+        res = pattern.match(clicked_reason)
+        if res:
+            point = res.group(1)
+            reason = res.group(2)
+            self.grid_points[self.last_updated_row].set_text(point)
+            self.grid_reasons[self.last_updated_row].set_text(reason)
 
 
 win = MyWindow()
