@@ -2,7 +2,7 @@ import collections
 import re
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 
 GradedQuestion = collections.namedtuple('GradedQuestion', ['student', 'question', 'point', 'reason'])
@@ -56,6 +56,8 @@ class MyWindow(Gtk.Window):
         self.list_of_reasons = Gtk.TextView()
         self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
         self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
+        self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
+        self.reason_tag.connect('event', self.click_in_list_of_reasons)
         self.h_box.pack_start(self.list_of_reasons, True, True, 0)
 
     def question_id_has_changed(self, widget, k):
@@ -77,19 +79,21 @@ class MyWindow(Gtk.Window):
         self.update_list_of_reasons(question_id, point)
 
     def update_list_of_reasons(self, question, point):
-        self.list_of_matching_reasons = []
+        self.list_of_reasons_buffer.set_text('')
         if point is None:
             for point_key in self.dict_of_reasons[question]:
                 for reason_key in self.dict_of_reasons[question][point_key]:
-                    multiplicity = self.dict_of_reasons[question][point_key][reason_key]
-                    new_reason = "%2d (%s) - %s" % (point_key, multiplicity, reason_key)
-                    self.list_of_matching_reasons.append(new_reason)
+                    self.insert_point_and_reason_in_list(question, point_key, reason_key)
         else:
             for reason_key in self.dict_of_reasons[question][point]:
-                multiplicity = self.dict_of_reasons[question][point][reason_key]
-                new_reason = "%2d (%s) - %s" % (point, multiplicity, reason_key)
-                self.list_of_matching_reasons.append(new_reason)
-        self.list_of_reasons_buffer.set_text('\n'.join(self.list_of_matching_reasons))
+                self.insert_point_and_reason_in_list(question, point, reason_key)
+
+    def insert_point_and_reason_in_list(self, question, point, reason):
+        multiplicity = self.dict_of_reasons[question][point][reason]
+        end_iter = self.list_of_reasons_buffer.get_end_iter()
+        new_reason = "%2d (%s) - %s" % (point, multiplicity, reason)
+        self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
+        self.list_of_reasons_buffer.insert(end_iter, "\n")
 
     def load_list_of_reasons(self, filename):
         self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
@@ -109,6 +113,15 @@ class MyWindow(Gtk.Window):
                                             reason=reason_temp)
                     self.dict_of_reasons[question][point][reason_temp] += 1
         # print("Has loaded %d answers." % len(self.long_list_of_reasons))
+
+    def click_in_list_of_reasons(self, tag, widget, event, iter):
+        if event.type == Gdk.EventType.BUTTON_PRESS:
+            end_iter = iter.copy()
+            end_iter.forward_to_tag_toggle(self.reason_tag)
+            iter.backward_to_tag_toggle(self.reason_tag)
+            clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
+            print(clicked_reason)
+
 
 win = MyWindow()
 win.connect("delete-event", Gtk.main_quit)
