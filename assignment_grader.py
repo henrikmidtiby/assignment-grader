@@ -13,13 +13,19 @@ class MyWindow(Gtk.Window):
     def __init__(self, file_with_question_names, file_with_student_names):
         Gtk.Window.__init__(self, title="Assignment grader")
 
-        self.h_box = Gtk.HBox(spacing=6)
-        self.add_grid_with_entry_fields(file_with_question_names)
-        self.add_list_of_reasons_widget()
-
         self.v_box = Gtk.VBox()
         self.add(self.v_box)
         self.add_student_selector(file_with_student_names)
+        self.add_grid_entry_and_reason_list(file_with_question_names)
+
+    def add_student_selector(self, file_with_student_names):
+        self.load_list_of_students(file_with_student_names)
+        self.add_combo_box_with_student_names_from_name_store()
+
+    def add_grid_entry_and_reason_list(self, file_with_question_names):
+        self.h_box = Gtk.HBox(spacing=6)
+        self.add_grid_with_entry_fields(file_with_question_names)
+        self.add_list_of_reasons_widget()
         self.v_box.pack_start(self.h_box, True, True, 0)
 
     def add_grid_with_entry_fields(self, file_with_question_names):
@@ -39,10 +45,6 @@ class MyWindow(Gtk.Window):
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
         self.reason_tag.connect('event', self.click_in_list_of_reasons)
         self.h_box.pack_start(self.list_of_reasons, True, True, 0)
-
-    def add_student_selector(self, file_with_student_names):
-        self.load_list_of_students(file_with_student_names)
-        self.add_combo_box_with_student_names_from_name_store()
 
     def add_combo_box_with_student_names_from_name_store(self):
         self.name_combo = Gtk.ComboBox.new_with_model(self.name_store)
