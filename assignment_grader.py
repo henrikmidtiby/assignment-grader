@@ -10,7 +10,7 @@ GradedQuestion = collections.namedtuple('GradedQuestion', ['student', 'question'
 
 class MyWindow(Gtk.Window):
 
-    def __init__(self):
+    def __init__(self, file_with_question_names):
         Gtk.Window.__init__(self, title="Assignment grader")
 
         self.h_box = Gtk.Box(spacing=6)
@@ -19,24 +19,32 @@ class MyWindow(Gtk.Window):
         self.grid = Gtk.Grid()
         self.grid.set_column_spacing(10)
 
-        self.grid_header_label = Gtk.Label("Question")
-        self.grid_header_point = Gtk.Label("Point")
-        self.grid_header_reason = Gtk.Label("Reason")
-        self.grid.attach(self.grid_header_label, 0, 0, 1, 1)
-        self.grid.attach(self.grid_header_point, 1, 0, 1, 1)
-        self.grid.attach(self.grid_header_reason, 2, 0, 1, 1)
+        self.add_column_headers_for_entry_rows()
 
         questions = ['1a', '1b', '2a', '2b', '2c']
+        self.reset_grid_data_structure()
+        self.add_rows_to_grid(file_with_question_names)
+        self.h_box.pack_start(self.grid, True, True, 0)
+
+        self.add_list_of_reasons_widget()
+
+    def add_rows_to_grid(self, file_with_question_names):
+        with open(file_with_question_names) as file_handle:
+            for line in file_handle:
+                pattern = re.compile("(\d[a-z])")
+                res = pattern.match(line)
+                if res:
+                    question = res.group(1)
+                    self.add_row_of_entry_fields(question)
+        self.add_row_of_entry_fields('')
+
+    def reset_grid_data_structure(self):
         self.grid_labels = []
         self.grid_points = []
         self.grid_reasons = []
         self.grid_k = 1
-        for question in questions:
-            self.add_row_of_entry_fields(question)
-        self.add_row_of_entry_fields('')
 
-        self.h_box.pack_start(self.grid, True, True, 0)
-
+    def add_list_of_reasons_widget(self):
         self.list_of_reasons_buffer = Gtk.TextBuffer()
         self.list_of_reasons = Gtk.TextView()
         self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
@@ -44,6 +52,14 @@ class MyWindow(Gtk.Window):
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
         self.reason_tag.connect('event', self.click_in_list_of_reasons)
         self.h_box.pack_start(self.list_of_reasons, True, True, 0)
+
+    def add_column_headers_for_entry_rows(self):
+        self.grid_header_label = Gtk.Label("Question")
+        self.grid_header_point = Gtk.Label("Point")
+        self.grid_header_reason = Gtk.Label("Reason")
+        self.grid.attach(self.grid_header_label, 0, 0, 1, 1)
+        self.grid.attach(self.grid_header_point, 1, 0, 1, 1)
+        self.grid.attach(self.grid_header_reason, 2, 0, 1, 1)
 
     def add_row_of_entry_fields(self, question):
         entry_label_min_width = 4
@@ -139,7 +155,7 @@ class MyWindow(Gtk.Window):
             self.grid_reasons[self.last_updated_row].set_text(reason)
 
 
-win = MyWindow()
+win = MyWindow('questions.txt')
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 win.load_list_of_reasons('statistics.csv')
