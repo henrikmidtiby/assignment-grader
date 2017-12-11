@@ -5,9 +5,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
 
-GradedQuestion = collections.namedtuple('GradedQuestion', ['student', 'question', 'point', 'reason'])
-
-
 class MyWindow(Gtk.Window):
 
     def __init__(self, file_with_question_names, file_with_student_names):
@@ -39,7 +36,7 @@ class MyWindow(Gtk.Window):
         self.name_combo.pack_start(renderer_text, True)
         self.name_combo.add_attribute(renderer_text, "text", 0)
         # self.name_combo.connect("changed", self.on_name_combo_changed)
-        self.v_box.pack_start(self.name_combo, True, True, 0)
+        self.v_box.pack_start(self.name_combo, False, True, 0)
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
@@ -53,7 +50,7 @@ class MyWindow(Gtk.Window):
         self.add_column_headers_for_entry_rows()
         self.reset_grid_data_structure()
         self.add_rows_to_grid(file_with_question_names)
-        self.h_box.pack_start(self.grid, True, True, 0)
+        self.h_box.pack_start(self.grid, False, False, 0)
 
     def add_column_headers_for_entry_rows(self):
         self.grid_header_label = Gtk.Label("Question")
@@ -86,7 +83,7 @@ class MyWindow(Gtk.Window):
     def add_row_of_entry_fields(self, question):
         entry_label_min_width = 4
         entry_point_min_width = 4
-        entry_reason_min_width = 40
+        entry_reason_min_width = 60
 
         self.add_new_question_entry_in_grid(entry_label_min_width, question)
         self.add_new_point_entry_in_grid(entry_point_min_width)
@@ -95,7 +92,7 @@ class MyWindow(Gtk.Window):
 
     def add_new_question_entry_in_grid(self, entry_label_min_width, question):
         question_id = Gtk.Entry()
-        question_id.set_max_width_chars(entry_label_min_width)
+        question_id.set_width_chars(entry_label_min_width)
         question_id.set_text(question)
         question_id.connect("changed", self.question_id_has_changed, self.grid_k)
         self.grid.attach(question_id, 0, self.grid_k, 1, 1)
@@ -155,9 +152,10 @@ class MyWindow(Gtk.Window):
     def add_list_of_reasons_widget(self):
         self.list_of_reasons_buffer = Gtk.TextBuffer()
         self.list_of_reasons = Gtk.TextView()
-        # self.list_of_reasons.gtk_widget_set_size_request(min_width_of_reasons)
+        self.list_of_reasons.set_editable(False)
+        self.list_of_reasons.set_cursor_visible(False)
         self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
-        self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
+        self.list_of_reasons_buffer.set_text('')
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
         self.reason_tag.connect('event', self.click_in_list_of_reasons)
         self.h_box.pack_start(self.list_of_reasons, True, True, 0)
