@@ -30,6 +30,16 @@ class MyWindow(Gtk.Window):
         self.add_rows_to_grid(file_with_question_names)
         self.h_box.pack_start(self.grid, True, True, 0)
 
+    def add_list_of_reasons_widget(self):
+        self.list_of_reasons_buffer = Gtk.TextBuffer()
+        self.list_of_reasons = Gtk.TextView()
+        # self.list_of_reasons.gtk_widget_set_size_request(min_width_of_reasons)
+        self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
+        self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
+        self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
+        self.reason_tag.connect('event', self.click_in_list_of_reasons)
+        self.h_box.pack_start(self.list_of_reasons, True, True, 0)
+
     def add_student_selector(self, file_with_student_names):
         self.load_list_of_students(file_with_student_names)
         self.add_combo_box_with_student_names_from_name_store()
@@ -61,16 +71,6 @@ class MyWindow(Gtk.Window):
         self.grid_points = []
         self.grid_reasons = []
         self.grid_k = 1
-
-    def add_list_of_reasons_widget(self):
-        self.list_of_reasons_buffer = Gtk.TextBuffer()
-        self.list_of_reasons = Gtk.TextView()
-        # self.list_of_reasons.gtk_widget_set_size_request(min_width_of_reasons)
-        self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
-        self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
-        self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
-        self.reason_tag.connect('event', self.click_in_list_of_reasons)
-        self.h_box.pack_start(self.list_of_reasons, True, True, 0)
 
     def add_column_headers_for_entry_rows(self):
         self.grid_header_label = Gtk.Label("Question")
