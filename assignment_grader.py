@@ -29,14 +29,18 @@ class MyWindow(Gtk.Window):
         self.add_list_of_reasons_widget()
 
     def add_rows_to_grid(self, file_with_question_names):
+        for question in self.extract_questions_from_file(file_with_question_names):
+            self.add_row_of_entry_fields(question)
+
+    @staticmethod
+    def extract_questions_from_file(file_with_question_names):
         with open(file_with_question_names) as file_handle:
             for line in file_handle:
                 pattern = re.compile("(\d[a-z])")
                 res = pattern.match(line)
                 if res:
                     question = res.group(1)
-                    self.add_row_of_entry_fields(question)
-        self.add_row_of_entry_fields('')
+                    yield question
 
     def reset_grid_data_structure(self):
         self.grid_labels = []
