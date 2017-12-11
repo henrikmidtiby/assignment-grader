@@ -10,23 +10,37 @@ GradedQuestion = collections.namedtuple('GradedQuestion', ['student', 'question'
 
 class MyWindow(Gtk.Window):
 
-    def __init__(self, file_with_question_names):
+    def __init__(self, file_with_question_names, file_with_student_names):
         Gtk.Window.__init__(self, title="Assignment grader")
 
-        self.h_box = Gtk.Box(spacing=6)
-        self.add(self.h_box)
+        self.h_box = Gtk.HBox(spacing=6)
+        self.add_grid_with_entry_fields(file_with_question_names)
+        self.add_list_of_reasons_widget()
 
+        self.v_box = Gtk.VBox()
+        self.add(self.v_box)
+        self.add_student_selector(file_with_student_names)
+        self.v_box.pack_start(self.h_box, True, True, 0)
+
+    def add_grid_with_entry_fields(self, file_with_question_names):
         self.grid = Gtk.Grid()
         self.grid.set_column_spacing(10)
-
         self.add_column_headers_for_entry_rows()
-
-        questions = ['1a', '1b', '2a', '2b', '2c']
         self.reset_grid_data_structure()
         self.add_rows_to_grid(file_with_question_names)
         self.h_box.pack_start(self.grid, True, True, 0)
 
-        self.add_list_of_reasons_widget()
+    def add_student_selector(self, file_with_student_names):
+        self.load_list_of_students(file_with_student_names)
+        self.add_combo_box_with_student_names_from_name_store()
+
+    def add_combo_box_with_student_names_from_name_store(self):
+        self.name_combo = Gtk.ComboBox.new_with_model(self.name_store)
+        renderer_text = Gtk.CellRendererText()
+        self.name_combo.pack_start(renderer_text, True)
+        self.name_combo.add_attribute(renderer_text, "text", 0)
+        # self.name_combo.connect("changed", self.on_name_combo_changed)
+        self.v_box.pack_start(self.name_combo, True, True, 0)
 
     def add_rows_to_grid(self, file_with_question_names):
         for question in self.extract_questions_from_file(file_with_question_names):
@@ -51,6 +65,7 @@ class MyWindow(Gtk.Window):
     def add_list_of_reasons_widget(self):
         self.list_of_reasons_buffer = Gtk.TextBuffer()
         self.list_of_reasons = Gtk.TextView()
+        # self.list_of_reasons.gtk_widget_set_size_request(min_width_of_reasons)
         self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
         self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
@@ -124,6 +139,17 @@ class MyWindow(Gtk.Window):
         self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
         self.list_of_reasons_buffer.insert(end_iter, "\n")
 
+    def load_list_of_students(self, filename):
+        self.name_store = Gtk.ListStore(str)
+
+        pattern = re.compile('(.*)')
+        with open(filename) as file_handle:
+            for line in file_handle:
+                res = pattern.match(line)
+                if res:
+                    student_id = res.group(1)
+                    self.name_store.append([student_id])
+
     def load_list_of_reasons(self, filename):
         self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
         # agreg15	1a	2	Punkterne
@@ -159,7 +185,7 @@ class MyWindow(Gtk.Window):
             self.grid_reasons[self.last_updated_row].set_text(reason)
 
 
-win = MyWindow('questions.txt')
+win = MyWindow('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 win.load_list_of_reasons('statistics.csv')
