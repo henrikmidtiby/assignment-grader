@@ -16,10 +16,6 @@ class MyWindow(Gtk.Window):
         self.h_box = Gtk.Box(spacing=6)
         self.add(self.h_box)
 
-        entry_label_min_width = 4
-        entry_point_min_width = 4
-        entry_reason_min_width = 40
-
         self.grid = Gtk.Grid()
         self.grid.set_column_spacing(10)
 
@@ -30,25 +26,14 @@ class MyWindow(Gtk.Window):
         self.grid.attach(self.grid_header_point, 1, 0, 1, 1)
         self.grid.attach(self.grid_header_reason, 2, 0, 1, 1)
 
+        questions = ['1a', '1b', '2a', '2b', '2c']
         self.grid_labels = []
         self.grid_points = []
         self.grid_reasons = []
-        for k in range(1, 10):
-            question_id = Gtk.Entry()
-            question_id.connect("changed", self.question_id_has_changed, k)
-            question_id.set_max_width_chars(entry_label_min_width)
-            point = Gtk.Entry()
-            point.connect("changed", self.points_has_changed, k)
-            point.set_width_chars(entry_point_min_width)
-            reason = Gtk.Entry()
-            reason.connect("changed", self.reason_has_changed, k)
-            reason.set_width_chars(entry_reason_min_width)
-            self.grid.attach(question_id, 0, k, 1, 1)
-            self.grid.attach(point, 1, k, 1, 1)
-            self.grid.attach(reason, 2, k, 1, 1)
-            self.grid_labels.append(question_id)
-            self.grid_points.append(point)
-            self.grid_reasons.append(reason)
+        self.grid_k = 1
+        for question in questions:
+            self.add_row_of_entry_fields(question)
+        self.add_row_of_entry_fields('')
 
         self.h_box.pack_start(self.grid, True, True, 0)
 
@@ -59,6 +44,29 @@ class MyWindow(Gtk.Window):
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
         self.reason_tag.connect('event', self.click_in_list_of_reasons)
         self.h_box.pack_start(self.list_of_reasons, True, True, 0)
+
+    def add_row_of_entry_fields(self, question):
+        entry_label_min_width = 4
+        entry_point_min_width = 4
+        entry_reason_min_width = 40
+
+        question_id = Gtk.Entry()
+        question_id.set_max_width_chars(entry_label_min_width)
+        point = Gtk.Entry()
+        point.set_width_chars(entry_point_min_width)
+        reason = Gtk.Entry()
+        reason.set_width_chars(entry_reason_min_width)
+        question_id.set_text(question)
+        question_id.connect("changed", self.question_id_has_changed, self.grid_k)
+        point.connect("changed", self.points_has_changed, self.grid_k)
+        reason.connect("changed", self.reason_has_changed, self.grid_k)
+        self.grid.attach(question_id, 0, self.grid_k, 1, 1)
+        self.grid.attach(point, 1, self.grid_k, 1, 1)
+        self.grid.attach(reason, 2, self.grid_k, 1, 1)
+        self.grid_labels.append(question_id)
+        self.grid_points.append(point)
+        self.grid_reasons.append(reason)
+        self.grid_k += 1
 
     def question_id_has_changed(self, widget, k):
         self.update_list_of_reasons_based_on_a_single_row(k)
