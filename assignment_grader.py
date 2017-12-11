@@ -136,11 +136,15 @@ class MyWindow(Gtk.Window):
         self.list_of_reasons_buffer.set_text('')
         if point is None:
             for point_key in self.dict_of_reasons[question]:
-                for reason_key in self.dict_of_reasons[question][point_key]:
-                    self.insert_point_and_reason_in_list(question, point_key, reason_key)
+                self.given_point_insert_all_matching_reasons(point_key, question)
         else:
-            for reason_key in self.dict_of_reasons[question][point]:
-                self.insert_point_and_reason_in_list(question, point, reason_key)
+            self.given_point_insert_all_matching_reasons(point - 1, question)
+            self.given_point_insert_all_matching_reasons(point, question)
+            self.given_point_insert_all_matching_reasons(point + 1, question)
+
+    def given_point_insert_all_matching_reasons(self, point, question):
+        for reason_key in self.dict_of_reasons[question][point]:
+            self.insert_point_and_reason_in_list(question, point, reason_key)
 
     def insert_point_and_reason_in_list(self, question, point, reason):
         multiplicity = self.dict_of_reasons[question][point][reason]
