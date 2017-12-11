@@ -22,6 +22,25 @@ class MyWindow(Gtk.Window):
         self.load_list_of_students(file_with_student_names)
         self.add_combo_box_with_student_names_from_name_store()
 
+    def load_list_of_students(self, filename):
+        self.name_store = Gtk.ListStore(str)
+
+        pattern = re.compile('(.*)')
+        with open(filename) as file_handle:
+            for line in file_handle:
+                res = pattern.match(line)
+                if res:
+                    student_id = res.group(1)
+                    self.name_store.append([student_id])
+
+    def add_combo_box_with_student_names_from_name_store(self):
+        self.name_combo = Gtk.ComboBox.new_with_model(self.name_store)
+        renderer_text = Gtk.CellRendererText()
+        self.name_combo.pack_start(renderer_text, True)
+        self.name_combo.add_attribute(renderer_text, "text", 0)
+        # self.name_combo.connect("changed", self.on_name_combo_changed)
+        self.v_box.pack_start(self.name_combo, True, True, 0)
+
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
         self.add_grid_with_entry_fields(file_with_question_names)
@@ -36,23 +55,19 @@ class MyWindow(Gtk.Window):
         self.add_rows_to_grid(file_with_question_names)
         self.h_box.pack_start(self.grid, True, True, 0)
 
-    def add_list_of_reasons_widget(self):
-        self.list_of_reasons_buffer = Gtk.TextBuffer()
-        self.list_of_reasons = Gtk.TextView()
-        # self.list_of_reasons.gtk_widget_set_size_request(min_width_of_reasons)
-        self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
-        self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
-        self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
-        self.reason_tag.connect('event', self.click_in_list_of_reasons)
-        self.h_box.pack_start(self.list_of_reasons, True, True, 0)
+    def add_column_headers_for_entry_rows(self):
+        self.grid_header_label = Gtk.Label("Question")
+        self.grid_header_point = Gtk.Label("Point")
+        self.grid_header_reason = Gtk.Label("Reason")
+        self.grid.attach(self.grid_header_label, 0, 0, 1, 1)
+        self.grid.attach(self.grid_header_point, 1, 0, 1, 1)
+        self.grid.attach(self.grid_header_reason, 2, 0, 1, 1)
 
-    def add_combo_box_with_student_names_from_name_store(self):
-        self.name_combo = Gtk.ComboBox.new_with_model(self.name_store)
-        renderer_text = Gtk.CellRendererText()
-        self.name_combo.pack_start(renderer_text, True)
-        self.name_combo.add_attribute(renderer_text, "text", 0)
-        # self.name_combo.connect("changed", self.on_name_combo_changed)
-        self.v_box.pack_start(self.name_combo, True, True, 0)
+    def reset_grid_data_structure(self):
+        self.grid_labels = []
+        self.grid_points = []
+        self.grid_reasons = []
+        self.grid_k = 1
 
     def add_rows_to_grid(self, file_with_question_names):
         for question in self.extract_questions_from_file(file_with_question_names):
@@ -67,20 +82,6 @@ class MyWindow(Gtk.Window):
                 if res:
                     question = res.group(1)
                     yield question
-
-    def reset_grid_data_structure(self):
-        self.grid_labels = []
-        self.grid_points = []
-        self.grid_reasons = []
-        self.grid_k = 1
-
-    def add_column_headers_for_entry_rows(self):
-        self.grid_header_label = Gtk.Label("Question")
-        self.grid_header_point = Gtk.Label("Point")
-        self.grid_header_reason = Gtk.Label("Reason")
-        self.grid.attach(self.grid_header_label, 0, 0, 1, 1)
-        self.grid.attach(self.grid_header_point, 1, 0, 1, 1)
-        self.grid.attach(self.grid_header_reason, 2, 0, 1, 1)
 
     def add_row_of_entry_fields(self, question):
         entry_label_min_width = 4
@@ -141,29 +142,15 @@ class MyWindow(Gtk.Window):
         self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
         self.list_of_reasons_buffer.insert(end_iter, "\n")
 
-    def load_list_of_students(self, filename):
-        self.name_store = Gtk.ListStore(str)
-
-        pattern = re.compile('(.*)')
-        with open(filename) as file_handle:
-            for line in file_handle:
-                res = pattern.match(line)
-                if res:
-                    student_id = res.group(1)
-                    self.name_store.append([student_id])
-
-    def load_list_of_reasons(self, filename):
-        self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
-        # agreg15	1a	2	Punkterne
-        pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
-        with open(filename) as file_handle:
-            for line in file_handle:
-                res = pattern.match(line)
-                if res:
-                    question = res.group(2)
-                    point = int(res.group(3))
-                    reason = res.group(4)
-                    self.dict_of_reasons[question][point][reason] += 1
+    def add_list_of_reasons_widget(self):
+        self.list_of_reasons_buffer = Gtk.TextBuffer()
+        self.list_of_reasons = Gtk.TextView()
+        # self.list_of_reasons.gtk_widget_set_size_request(min_width_of_reasons)
+        self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
+        self.list_of_reasons_buffer.set_text('This is a test.\nSeveral lines...')
+        self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
+        self.reason_tag.connect('event', self.click_in_list_of_reasons)
+        self.h_box.pack_start(self.list_of_reasons, True, True, 0)
 
     def click_in_list_of_reasons(self, tag, widget, event, iter):
         if event.type == Gdk.EventType.BUTTON_PRESS:
@@ -185,6 +172,19 @@ class MyWindow(Gtk.Window):
             reason = res.group(2)
             self.grid_points[self.last_updated_row].set_text(point)
             self.grid_reasons[self.last_updated_row].set_text(reason)
+
+    def load_list_of_reasons(self, filename):
+        self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
+        # agreg15	1a	2	Punkterne
+        pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
+        with open(filename) as file_handle:
+            for line in file_handle:
+                res = pattern.match(line)
+                if res:
+                    question = res.group(2)
+                    point = int(res.group(3))
+                    reason = res.group(4)
+                    self.dict_of_reasons[question][point][reason] += 1
 
 
 win = MyWindow('questions.txt', 'students.txt')
