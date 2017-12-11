@@ -88,23 +88,33 @@ class MyWindow(Gtk.Window):
         entry_point_min_width = 4
         entry_reason_min_width = 40
 
+        self.add_new_question_entry_in_grid(entry_label_min_width, question)
+        self.add_new_point_entry_in_grid(entry_point_min_width)
+        self.add_new_reason_entry_in_grid(entry_reason_min_width)
+        self.grid_k += 1
+
+    def add_new_question_entry_in_grid(self, entry_label_min_width, question):
         question_id = Gtk.Entry()
         question_id.set_max_width_chars(entry_label_min_width)
-        point = Gtk.Entry()
-        point.set_width_chars(entry_point_min_width)
-        reason = Gtk.Entry()
-        reason.set_width_chars(entry_reason_min_width)
         question_id.set_text(question)
         question_id.connect("changed", self.question_id_has_changed, self.grid_k)
-        point.connect("changed", self.points_has_changed, self.grid_k)
-        reason.connect("changed", self.reason_has_changed, self.grid_k)
         self.grid.attach(question_id, 0, self.grid_k, 1, 1)
-        self.grid.attach(point, 1, self.grid_k, 1, 1)
-        self.grid.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_labels.append(question_id)
+
+    def add_new_point_entry_in_grid(self, entry_point_min_width):
+        point = Gtk.Entry()
+        point.set_width_chars(entry_point_min_width)
+        point.connect("changed", self.points_has_changed, self.grid_k)
+        self.grid.attach(point, 1, self.grid_k, 1, 1)
         self.grid_points.append(point)
+        return point
+
+    def add_new_reason_entry_in_grid(self, entry_reason_min_width):
+        reason = Gtk.Entry()
+        reason.set_width_chars(entry_reason_min_width)
+        reason.connect("changed", self.reason_has_changed, self.grid_k)
+        self.grid.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
-        self.grid_k += 1
 
     def question_id_has_changed(self, widget, k):
         self.update_list_of_reasons_based_on_a_single_row(k)
@@ -175,6 +185,11 @@ class MyWindow(Gtk.Window):
 
     def load_list_of_reasons(self, filename):
         self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
+        for (question, point, reason) in self.extract_reasons_from_file(filename):
+            self.dict_of_reasons[question][point][reason] += 1
+
+    @staticmethod
+    def extract_reasons_from_file(filename):
         # agreg15	1a	2	Punkterne
         pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
         with open(filename) as file_handle:
@@ -184,12 +199,10 @@ class MyWindow(Gtk.Window):
                     question = res.group(2)
                     point = int(res.group(3))
                     reason = res.group(4)
-                    self.dict_of_reasons[question][point][reason] += 1
-
+                    yield (question, point, reason)
 
 win = MyWindow('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 win.load_list_of_reasons('statistics.csv')
-win.update_list_of_reasons('1a', 0)
 Gtk.main()
