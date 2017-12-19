@@ -12,10 +12,12 @@ class MyWindow(Gtk.Window):
 
     def __init__(self, file_with_question_names, file_with_student_names):
         Gtk.Window.__init__(self, title="Assignment grader")
+        self.resize(1300, 700)
 
         self.v_box = Gtk.VBox()
         self.add(self.v_box)
         self.add_student_selector(file_with_student_names)
+        self.add_save_button()
         self.add_grid_entry_and_reason_list(file_with_question_names)
 
     def add_student_selector(self, file_with_student_names):
@@ -34,18 +36,35 @@ class MyWindow(Gtk.Window):
                     self.name_store.append([student_id])
 
     def add_combo_box_with_student_names_from_name_store(self):
+        self.current_student_id = None
         self.name_combo = Gtk.ComboBox.new_with_model(self.name_store)
         renderer_text = Gtk.CellRendererText()
         self.name_combo.pack_start(renderer_text, True)
         self.name_combo.add_attribute(renderer_text, "text", 0)
-        # self.name_combo.connect("changed", self.on_name_combo_changed)
-        self.v_box.pack_start(self.name_combo, False, True, 0)
+        self.name_combo.connect("changed", self.on_name_combo_changed)
+        self.v_box.pack_start(self.name_combo, False, False, 0)
+
+    def on_name_combo_changed(self, combo):
+        tree_iter = combo.get_active_iter()
+        if tree_iter != None:
+            model = combo.get_model()
+            student_id = model[tree_iter][0]
+            self.current_student_id = student_id
+
+    def add_save_button(self):
+        button = Gtk.Button.new_with_label("Save")
+        button.connect("clicked", self.on_click_me_clicked)
+        self.v_box.pack_start(button, False, False, 0)
+
+    def on_click_me_clicked(self, t1):
+        print("Saving data")
+        self.save_reasons_to_a_file('testing.csv')
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
         self.add_grid_with_entry_fields(file_with_question_names)
         self.add_list_of_reasons_widget()
-        self.v_box.pack_start(self.h_box, True, True, 0)
+        self.v_box.pack_start(self.h_box, False, False, 0)
 
     def add_grid_with_entry_fields(self, file_with_question_names):
         self.grid = Gtk.Grid()
@@ -170,7 +189,7 @@ class MyWindow(Gtk.Window):
         self.list_of_reasons_buffer.set_text('')
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
         self.reason_tag.connect('event', self.click_in_list_of_reasons)
-        self.h_box.pack_start(self.list_of_reasons, True, True, 0)
+        self.h_box.pack_start(self.list_of_reasons, False, False, 0)
 
     def click_in_list_of_reasons(self, tag, widget, event, iter):
         if event.type == Gdk.EventType.BUTTON_PRESS:
@@ -213,6 +232,16 @@ class MyWindow(Gtk.Window):
                     point = int(res.group(3))
                     reason = res.group(4)
                     yield (student_id, question, point, reason)
+
+    def save_reasons_to_a_file(self, filename):
+        with open(filename, 'w') as file_handle:
+            student_id = self.current_student_id
+            for row in range(self.grid_k):
+                question_id = self.grid_labels[row].get_text()
+                points = self.grid_points[row].get_text()
+                reason = self.grid_reasons[row].get_text()
+                print("%s\t%s\t%s\t%s" % (student_id, question_id, points, reason),
+                      file = file_handle)
 
 win = MyWindow('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
