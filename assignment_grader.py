@@ -104,7 +104,8 @@ class MyWindow(Gtk.Window):
     def add_new_point_entry_in_grid(self, entry_point_min_width):
         point = Gtk.Entry()
         point.set_width_chars(entry_point_min_width)
-        point.connect("changed", self.points_has_changed, self.grid_k)
+        #point.connect("changed", self.points_has_changed, self.grid_k)
+        point.connect('event', self.event_catcher, self.grid_k)
         self.grid.attach(point, 1, self.grid_k, 1, 1)
         self.grid_points.append(point)
         return point
@@ -115,6 +116,10 @@ class MyWindow(Gtk.Window):
         reason.connect("changed", self.reason_has_changed, self.grid_k)
         self.grid.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
+
+    def event_catcher(self, entry, event, k):
+        print(event.type)
+        self.update_list_of_reasons_based_on_a_single_row(k)
 
     def question_id_has_changed(self, widget, k):
         self.update_list_of_reasons_based_on_a_single_row(k)
