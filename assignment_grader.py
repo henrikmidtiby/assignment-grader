@@ -5,6 +5,9 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
 
+ScoreAndReason = collections.namedtuple('ScoreAndReason', ['score', 'reason'])
+
+
 class MyWindow(Gtk.Window):
 
     def __init__(self, file_with_question_names, file_with_student_names):
@@ -187,8 +190,10 @@ class MyWindow(Gtk.Window):
 
     def load_list_of_reasons(self, filename):
         self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
-        for (question, point, reason) in self.extract_reasons_from_file(filename):
+        self.dict_of_score_and_reasons = collections.defaultdict(lambda: collections.defaultdict(list))
+        for (student_id, question, point, reason) in self.extract_reasons_from_file(filename):
             self.dict_of_reasons[question][point][reason] += 1
+            self.dict_of_score_and_reasons[student_id][question] = ScoreAndReason(point, reason)
 
     @staticmethod
     def extract_reasons_from_file(filename):
@@ -198,10 +203,11 @@ class MyWindow(Gtk.Window):
             for line in file_handle:
                 res = pattern.match(line)
                 if res:
+                    student_id = res.group(1)
                     question = res.group(2)
                     point = int(res.group(3))
                     reason = res.group(4)
-                    yield (question, point, reason)
+                    yield (student_id, question, point, reason)
 
 win = MyWindow('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
