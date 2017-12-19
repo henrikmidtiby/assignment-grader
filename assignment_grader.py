@@ -68,6 +68,7 @@ class MyWindow(Gtk.Window):
 
     def add_grid_with_entry_fields(self, file_with_question_names):
         self.grid = Gtk.Grid()
+        self.grid.set_size_request(900, -1)
         self.grid.set_column_spacing(10)
         self.add_column_headers_for_entry_rows()
         self.reset_grid_data_structure()
