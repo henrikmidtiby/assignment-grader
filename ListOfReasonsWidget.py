@@ -45,7 +45,8 @@ class ListOfReasonsWidget(Gtk.TextView):
     def update_list_of_reasons(self, question, point, partial_grade_handler):
         self.list_of_reasons_buffer.set_text('')
         if point is None:
-            for point_key in partial_grade_handler.dict_of_reasons[question]:
+            point_keys = partial_grade_handler.dict_of_reasons[question].keys()
+            for point_key in sorted(point_keys, key=lambda temp: int('%s0' % temp)):
                 self.given_point_insert_all_matching_reasons(point_key, question, partial_grade_handler)
         else:
             self.given_point_insert_all_matching_reasons(point - 1, question, partial_grade_handler)
@@ -53,12 +54,12 @@ class ListOfReasonsWidget(Gtk.TextView):
             self.given_point_insert_all_matching_reasons(point + 1, question, partial_grade_handler)
 
     def given_point_insert_all_matching_reasons(self, point, question, partial_grade_handler):
-        for reason_key in partial_grade_handler.dict_of_reasons[question][point]:
+        for reason_key in partial_grade_handler.dict_of_reasons[question][str(point)].keys():
             self.insert_point_and_reason_in_list(question, point, reason_key, partial_grade_handler)
 
     def insert_point_and_reason_in_list(self, question, point, reason, partial_grade_handler):
-        multiplicity = partial_grade_handler.dict_of_reasons[question][point][reason]
+        multiplicity = partial_grade_handler.dict_of_reasons[question][str(point)][reason]
         end_iter = self.list_of_reasons_buffer.get_end_iter()
-        new_reason = "%2d (%s) - %s" % (point, multiplicity, reason)
+        new_reason = "%2s (%s) - %s" % (point, multiplicity, reason)
         self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
         self.list_of_reasons_buffer.insert(end_iter, "\n")
