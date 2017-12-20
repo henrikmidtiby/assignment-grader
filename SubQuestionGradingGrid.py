@@ -50,19 +50,16 @@ class SubQuestionGradingGrid(Gtk.Grid):
                     yield question
 
     def add_row_of_entry_fields(self, question):
-        entry_label_min_width = 4
         entry_point_min_width = 4
         entry_reason_min_width = 60
 
-        self.add_new_question_entry_in_grid(entry_label_min_width, question)
+        self.add_new_question_entry_in_grid(question)
         self.add_new_point_entry_in_grid(entry_point_min_width)
         self.add_new_reason_entry_in_grid(entry_reason_min_width)
         self.grid_k += 1
 
-    def add_new_question_entry_in_grid(self, entry_label_min_width, question):
-        question_id = Gtk.Entry()
-        question_id.set_width_chars(entry_label_min_width)
-        question_id.set_text(question)
+    def add_new_question_entry_in_grid(self, question):
+        question_id = Gtk.Label(question)
         self.attach(question_id, 0, self.grid_k, 1, 1)
         self.grid_labels.append(question_id)
 
