@@ -6,11 +6,22 @@ ScoreAndReason = collections.namedtuple('ScoreAndReason', ['score', 'reason'])
 
 class StudentPartialGradeHandler:
     def load_list_of_reasons(self, filename):
-        self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
         self.dict_of_score_and_reasons = collections.defaultdict(lambda: collections.defaultdict(list))
         for (student_id, question, point, reason) in self.extract_reasons_from_file(filename):
-            self.dict_of_reasons[question][point][reason] += 1
             self.dict_of_score_and_reasons[student_id][question] = ScoreAndReason(point, reason)
+        self.rebuild_dict_of_reasons()
+
+    def rebuild_dict_of_reasons(self):
+        self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
+        for student, question, point, reason in self.get_question_point_and_reasons_from_dict_of_scores_and_reasons():
+            self.dict_of_reasons[question][point][reason] += 1
+
+    def get_question_point_and_reasons_from_dict_of_scores_and_reasons(self):
+        for student_id in self.dict_of_score_and_reasons.keys():
+            student_partial_grades = self.dict_of_score_and_reasons[student_id]
+            for question_id in student_partial_grades.keys():
+                question_partial_grades = student_partial_grades[question_id]
+                yield student_id, question_id, str(question_partial_grades.score), question_partial_grades.reason
 
     @staticmethod
     def extract_reasons_from_file(filename):
@@ -45,5 +56,6 @@ class StudentPartialGradeHandler:
         for grade in partial_grades:
             score_and_reason = ScoreAndReason(grade.grade, grade.reason)
             self.dict_of_score_and_reasons[student_id][grade.question_id] = score_and_reason
+        self.rebuild_dict_of_reasons()
 
 
