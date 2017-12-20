@@ -51,6 +51,7 @@ class AssignmentGrader(Gtk.Window):
             model = combo.get_model()
             student_id = model[tree_iter][0]
             self.current_student_id = student_id
+        self.grid_with_entry.clean_all_fields()
 
     def add_save_button(self):
         button = Gtk.Button.new_with_label("Save")

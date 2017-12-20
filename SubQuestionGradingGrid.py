@@ -117,3 +117,8 @@ class SubQuestionGradingGrid(Gtk.Grid):
         reason = self.grid_reasons[k].get_text()
         partial_grade = QuestionGradeAndReason(question_id, point, reason)
         return partial_grade
+
+    def clean_all_fields(self):
+        for k in range(self.grid_k):
+            self.grid_points[k - 1].set_text("")
+            self.grid_reasons[k - 1].set_text("")
