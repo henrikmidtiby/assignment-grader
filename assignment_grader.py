@@ -62,16 +62,16 @@ class AssignmenGrader(Gtk.Window):
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
-        self.grid_with_entry = SubQuestionGradingGrid.SubQuestionGradingGrid(file_with_question_names)
-        self.grid_with_entry.connect('sub_question_line_has_changed', self.simple_event_catcher)
-        self.h_box.pack_start(self.grid_with_entry, False, False, 0)
+        self.add_grid_entry_widget(file_with_question_names)
         self.add_list_of_reasons_widget()
         self.v_box.pack_start(self.h_box, False, False, 0)
 
-    def simple_event_catcher(self, place_holder):
-        self.update_list_of_reasons_based_on_a_single_row()
+    def add_grid_entry_widget(self, file_with_question_names):
+        self.grid_with_entry = SubQuestionGradingGrid.SubQuestionGradingGrid(file_with_question_names)
+        self.grid_with_entry.connect('sub_question_line_has_changed', self.update_list_of_reasons_based_on_a_single_row)
+        self.h_box.pack_start(self.grid_with_entry, False, False, 0)
 
-    def update_list_of_reasons_based_on_a_single_row(self):
+    def update_list_of_reasons_based_on_a_single_row(self, placeholder):
         question_id = self.grid_with_entry.get_question_id_of_last_active_row()
         point = self.grid_with_entry.get_points_for_subquestion_of_last_active_row()
         self.list_of_reasons.update_list_of_reasons(question_id, point, self.student_partial_grade_handler)
