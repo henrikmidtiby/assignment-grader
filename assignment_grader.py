@@ -5,7 +5,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
 import StudentPartialGradeHandler
-
+import SubQuestionGradingGrid
 
 class MyWindow(Gtk.Window):
 
@@ -61,98 +61,19 @@ class MyWindow(Gtk.Window):
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
-        self.add_grid_with_entry_fields(file_with_question_names)
+        self.grid_with_entry = SubQuestionGradingGrid.SubQuestionGradingGrid(file_with_question_names)
+        self.grid_with_entry.connect('sub_question_line_has_changed', self.simple_event_catcher)
+        self.h_box.pack_start(self.grid_with_entry, False, False, 0)
         self.add_list_of_reasons_widget()
         self.v_box.pack_start(self.h_box, False, False, 0)
 
-    def add_grid_with_entry_fields(self, file_with_question_names):
-        self.grid = Gtk.Grid()
-        self.grid.set_size_request(900, -1)
-        self.grid.set_column_spacing(10)
-        self.add_column_headers_for_entry_rows()
-        self.reset_grid_data_structure()
-        self.add_rows_to_grid(file_with_question_names)
-        self.h_box.pack_start(self.grid, False, False, 0)
-
-    def add_column_headers_for_entry_rows(self):
-        self.grid_header_label = Gtk.Label("Question")
-        self.grid_header_point = Gtk.Label("Point")
-        self.grid_header_reason = Gtk.Label("Reason")
-        self.grid.attach(self.grid_header_label, 0, 0, 1, 1)
-        self.grid.attach(self.grid_header_point, 1, 0, 1, 1)
-        self.grid.attach(self.grid_header_reason, 2, 0, 1, 1)
-
-    def reset_grid_data_structure(self):
-        self.grid_labels = []
-        self.grid_points = []
-        self.grid_reasons = []
-        self.grid_k = 1
-
-    def add_rows_to_grid(self, file_with_question_names):
-        for question in self.extract_questions_from_file(file_with_question_names):
-            self.add_row_of_entry_fields(question)
-
-    @staticmethod
-    def extract_questions_from_file(file_with_question_names):
-        with open(file_with_question_names) as file_handle:
-            for line in file_handle:
-                pattern = re.compile("(\d[a-z])")
-                res = pattern.match(line)
-                if res:
-                    question = res.group(1)
-                    yield question
-
-    def add_row_of_entry_fields(self, question):
-        entry_label_min_width = 4
-        entry_point_min_width = 4
-        entry_reason_min_width = 60
-
-        self.add_new_question_entry_in_grid(entry_label_min_width, question)
-        self.add_new_point_entry_in_grid(entry_point_min_width)
-        self.add_new_reason_entry_in_grid(entry_reason_min_width)
-        self.grid_k += 1
-
-    def add_new_question_entry_in_grid(self, entry_label_min_width, question):
-        question_id = Gtk.Entry()
-        question_id.set_width_chars(entry_label_min_width)
-        question_id.set_text(question)
-        question_id.connect("changed", self.question_id_has_changed, self.grid_k)
-        self.grid.attach(question_id, 0, self.grid_k, 1, 1)
-        self.grid_labels.append(question_id)
-
-    def add_new_point_entry_in_grid(self, entry_point_min_width):
-        point = Gtk.Entry()
-        point.set_width_chars(entry_point_min_width)
-        #point.connect("changed", self.points_has_changed, self.grid_k)
-        point.connect('event', self.event_catcher, self.grid_k)
-        self.grid.attach(point, 1, self.grid_k, 1, 1)
-        self.grid_points.append(point)
-        return point
-
-    def add_new_reason_entry_in_grid(self, entry_reason_min_width):
-        reason = Gtk.Entry()
-        reason.set_width_chars(entry_reason_min_width)
-        reason.connect("changed", self.reason_has_changed, self.grid_k)
-        self.grid.attach(reason, 2, self.grid_k, 1, 1)
-        self.grid_reasons.append(reason)
-
-    def event_catcher(self, entry, event, k):
-        print(event.type)
+    def simple_event_catcher(self, place_holder, k):
         self.update_list_of_reasons_based_on_a_single_row(k)
-
-    def question_id_has_changed(self, widget, k):
-        self.update_list_of_reasons_based_on_a_single_row(k)
-
-    def points_has_changed(self, widget, k):
-        self.update_list_of_reasons_based_on_a_single_row(k)
-
-    def reason_has_changed(self, widget, k):
-        pass
 
     def update_list_of_reasons_based_on_a_single_row(self, k):
         self.last_updated_row = k - 1
-        question_id = self.grid_labels[self.last_updated_row].get_text()
-        point_str = self.grid_points[self.last_updated_row].get_text()
+        question_id = self.grid_with_entry.get_question_id(self.last_updated_row)
+        point_str = self.grid_with_entry.get_points_for_subquestion(self.last_updated_row)
         try:
             point = int(point_str)
         except ValueError as e:

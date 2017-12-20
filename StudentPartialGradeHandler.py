@@ -35,3 +35,4 @@ class StudentPartialGradeHandler:
                 reason = self.grid_reasons[row].get_text()
                 print("%s\t%s\t%s\t%s" % (student_id, question_id, points, reason),
                       file = file_handle)
+
