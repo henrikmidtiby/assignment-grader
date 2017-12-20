@@ -25,6 +25,7 @@ class ListOfReasonsWidget(Gtk.TextView):
             clicked_reason = self.get_content_of_reason_tag_indicated_by_iter(iter)
             point, reason = self.interpret_clicked_reason(clicked_reason)
             self.emit('reason_selected', point, reason)
+            return True
 
     def get_content_of_reason_tag_indicated_by_iter(self, iter):
         end_iter = iter.copy()
