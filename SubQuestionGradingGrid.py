@@ -1,7 +1,11 @@
 import re
+import collections
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
+
+StudentAndPartialGrades = collections.namedtuple('StudentAndPartialGrades', ['student_id', 'partial_grades'])
+QuestionGradeAndReason = collections.namedtuple('QuestionGradeAndReason', ['question_id', 'grade', 'reason'])
 
 
 class SubQuestionGradingGrid(Gtk.Grid):
@@ -98,3 +102,18 @@ class SubQuestionGradingGrid(Gtk.Grid):
 
     def set_reason_for_subquestion_of_last_active_row(self, reason):
         return self.grid_reasons[self.last_updated_row].set_text(reason)
+
+    def get_all_partial_grades(self):
+        partial_grades = []
+        for k in range(self.grid_k):
+            partial_grade = self.get_partial_grade(k)
+            partial_grades.append(partial_grade)
+        return partial_grades
+
+    def get_partial_grade(self, k):
+        k = k - 1
+        question_id = self.grid_labels[k].get_text()
+        point = self.grid_points[k].get_text()
+        reason = self.grid_reasons[k].get_text()
+        partial_grade = QuestionGradeAndReason(question_id, point, reason)
+        return partial_grade
