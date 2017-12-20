@@ -53,11 +53,10 @@ class MyWindow(Gtk.Window):
 
     def add_save_button(self):
         button = Gtk.Button.new_with_label("Save")
-        button.connect("clicked", self.on_click_me_clicked)
+        button.connect("clicked", self.on_save_button_clicked)
         self.v_box.pack_start(button, False, False, 0)
 
-    def on_click_me_clicked(self, t1):
-        print("Saving data")
+    def on_save_button_clicked(self, t1):
         self.student_partial_grade_handler.save_reasons_to_a_file('testing.csv')
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
