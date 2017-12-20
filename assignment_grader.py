@@ -1,4 +1,3 @@
-import collections
 import re
 import gi
 gi.require_version('Gtk', '3.0')
@@ -6,6 +5,7 @@ from gi.repository import Gtk, Gdk
 
 import StudentPartialGradeHandler
 import SubQuestionGradingGrid
+import ListOfReasonsWidget
 
 
 class AssignmenGrader(Gtk.Window):
@@ -79,51 +79,12 @@ class AssignmenGrader(Gtk.Window):
             point = int(point_str)
         except ValueError as e:
             point = None
-        self.update_list_of_reasons(question_id, point)
-
-    def update_list_of_reasons(self, question, point):
-        self.list_of_reasons_buffer.set_text('')
-        if point is None:
-            for point_key in self.student_partial_grade_handler.dict_of_reasons[question]:
-                self.given_point_insert_all_matching_reasons(point_key, question)
-        else:
-            self.given_point_insert_all_matching_reasons(point - 1, question)
-            self.given_point_insert_all_matching_reasons(point, question)
-            self.given_point_insert_all_matching_reasons(point + 1, question)
-
-    def given_point_insert_all_matching_reasons(self, point, question):
-        for reason_key in self.student_partial_grade_handler.dict_of_reasons[question][point]:
-            self.insert_point_and_reason_in_list(question, point, reason_key)
-
-    def insert_point_and_reason_in_list(self, question, point, reason):
-        multiplicity = self.student_partial_grade_handler.dict_of_reasons[question][point][reason]
-        end_iter = self.list_of_reasons_buffer.get_end_iter()
-        new_reason = "%2d (%s) - %s" % (point, multiplicity, reason)
-        self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
-        self.list_of_reasons_buffer.insert(end_iter, "\n")
+        self.list_of_reasons.update_list_of_reasons(question_id, point, self.student_partial_grade_handler)
 
     def add_list_of_reasons_widget(self):
-        self.list_of_reasons_buffer = Gtk.TextBuffer()
-        self.list_of_reasons = Gtk.TextView()
-        self.list_of_reasons.set_editable(False)
-        self.list_of_reasons.set_cursor_visible(False)
-        self.list_of_reasons.set_buffer(self.list_of_reasons_buffer)
-        self.list_of_reasons_buffer.set_text('')
-        self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
-        self.reason_tag.connect('event', self.click_in_list_of_reasons)
+        self.list_of_reasons = ListOfReasonsWidget.ListOfReasonsWidget()
+        self.list_of_reasons.connect('reason_selected', self.update_reason_for_current_question)
         self.h_box.pack_start(self.list_of_reasons, False, False, 0)
-
-    def click_in_list_of_reasons(self, tag, widget, event, iter):
-        if event.type == Gdk.EventType.BUTTON_PRESS:
-            clicked_reason = self.get_content_of_reason_tag_indicated_by_iter(iter)
-            self.update_reason_for_current_question(clicked_reason)
-
-    def get_content_of_reason_tag_indicated_by_iter(self, iter):
-        end_iter = iter.copy()
-        end_iter.forward_to_tag_toggle(self.reason_tag)
-        iter.backward_to_tag_toggle(self.reason_tag)
-        clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
-        return clicked_reason
 
     def update_reason_for_current_question(self, clicked_reason):
         pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
@@ -131,8 +92,8 @@ class AssignmenGrader(Gtk.Window):
         if res:
             point = res.group(1)
             reason = res.group(2)
-            self.grid_points[self.last_updated_row].set_text(point)
-            self.grid_reasons[self.last_updated_row].set_text(reason)
+            self.grid_with_entry.grid_points[self.last_updated_row].set_text(point)
+            self.grid_with_entry.grid_reasons[self.last_updated_row].set_text(reason)
 
     def load_list_of_reasons(self, filename):
         self.student_partial_grade_handler.load_list_of_reasons(filename)
