@@ -8,7 +8,7 @@ import SubQuestionGradingGrid
 import ListOfReasonsWidget
 
 
-class AssignmenGrader(Gtk.Window):
+class AssignmentGrader(Gtk.Window):
 
     def __init__(self, file_with_question_names, file_with_student_names):
         self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
@@ -88,7 +88,7 @@ class AssignmenGrader(Gtk.Window):
     def load_list_of_reasons(self, filename):
         self.student_partial_grade_handler.load_list_of_reasons(filename)
 
-win = AssignmenGrader('questions.txt', 'students.txt')
+win = AssignmentGrader('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 win.load_list_of_reasons('statistics.csv')
