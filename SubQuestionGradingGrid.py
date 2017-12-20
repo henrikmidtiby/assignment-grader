@@ -4,7 +4,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
 
 
-
 class SubQuestionGradingGrid(Gtk.Grid):
     __gsignals__ = {
         'sub_question_line_has_changed': (GObject.SIGNAL_RUN_FIRST, None,
@@ -64,14 +63,12 @@ class SubQuestionGradingGrid(Gtk.Grid):
         question_id = Gtk.Entry()
         question_id.set_width_chars(entry_label_min_width)
         question_id.set_text(question)
-        #question_id.connect("changed", self.question_id_has_changed, self.grid_k)
         self.attach(question_id, 0, self.grid_k, 1, 1)
         self.grid_labels.append(question_id)
 
     def add_new_point_entry_in_grid(self, entry_point_min_width):
         point = Gtk.Entry()
         point.set_width_chars(entry_point_min_width)
-        # point.connect("changed", self.points_has_changed, self.grid_k)
         point.connect('event', self.event_catcher, self.grid_k)
         self.attach(point, 1, self.grid_k, 1, 1)
         self.grid_points.append(point)
@@ -80,7 +77,6 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def add_new_reason_entry_in_grid(self, entry_reason_min_width):
         reason = Gtk.Entry()
         reason.set_width_chars(entry_reason_min_width)
-        #reason.connect("changed", self.reason_has_changed, self.grid_k)
         self.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
 
