@@ -8,7 +8,7 @@ from gi.repository import Gtk, Gdk, GObject
 class SubQuestionGradingGrid(Gtk.Grid):
     __gsignals__ = {
         'sub_question_line_has_changed': (GObject.SIGNAL_RUN_FIRST, None,
-                      (int,))
+                      ())
     }
 
     def __init__(self, file_with_question_names):
@@ -85,11 +85,23 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_reasons.append(reason)
 
     def event_catcher(self, entry, event, k):
+        self.last_updated_row = k - 1
         print(event.type, k)
-        self.emit("sub_question_line_has_changed", k)
+        self.emit("sub_question_line_has_changed")
 
-    def get_question_id(self, row_number):
-        return self.grid_labels[row_number].get_text()
+    def get_question_id_of_last_active_row(self):
+        return self.grid_labels[self.last_updated_row].get_text()
 
-    def get_points_for_subquestion(self, row_number):
-        return self.grid_points[row_number].get_text()
+    def get_points_for_subquestion_of_last_active_row(self):
+        point_str = self.grid_points[self.last_updated_row].get_text()
+        try:
+            point = int(point_str)
+        except ValueError as e:
+            point = None
+        return point
+
+    def set_points_for_subquestion_of_last_active_row(self, points):
+        return self.grid_points[self.last_updated_row].set_text("%d" % points)
+
+    def set_reason_for_subquestion_of_last_active_row(self, reason):
+        return self.grid_reasons[self.last_updated_row].set_text(reason)

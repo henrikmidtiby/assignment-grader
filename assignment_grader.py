@@ -68,17 +68,12 @@ class AssignmenGrader(Gtk.Window):
         self.add_list_of_reasons_widget()
         self.v_box.pack_start(self.h_box, False, False, 0)
 
-    def simple_event_catcher(self, place_holder, k):
-        self.update_list_of_reasons_based_on_a_single_row(k)
+    def simple_event_catcher(self, place_holder):
+        self.update_list_of_reasons_based_on_a_single_row()
 
-    def update_list_of_reasons_based_on_a_single_row(self, k):
-        self.last_updated_row = k - 1
-        question_id = self.grid_with_entry.get_question_id(self.last_updated_row)
-        point_str = self.grid_with_entry.get_points_for_subquestion(self.last_updated_row)
-        try:
-            point = int(point_str)
-        except ValueError as e:
-            point = None
+    def update_list_of_reasons_based_on_a_single_row(self):
+        question_id = self.grid_with_entry.get_question_id_of_last_active_row()
+        point = self.grid_with_entry.get_points_for_subquestion_of_last_active_row()
         self.list_of_reasons.update_list_of_reasons(question_id, point, self.student_partial_grade_handler)
 
     def add_list_of_reasons_widget(self):
@@ -86,14 +81,9 @@ class AssignmenGrader(Gtk.Window):
         self.list_of_reasons.connect('reason_selected', self.update_reason_for_current_question)
         self.h_box.pack_start(self.list_of_reasons, False, False, 0)
 
-    def update_reason_for_current_question(self, clicked_reason):
-        pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
-        res = pattern.match(clicked_reason)
-        if res:
-            point = res.group(1)
-            reason = res.group(2)
-            self.grid_with_entry.grid_points[self.last_updated_row].set_text(point)
-            self.grid_with_entry.grid_reasons[self.last_updated_row].set_text(reason)
+    def update_reason_for_current_question(self, placeholder, point, reason):
+        self.grid_with_entry.set_points_for_subquestion_of_last_active_row(point)
+        self.grid_with_entry.set_reason_for_subquestion_of_last_active_row(reason)
 
     def load_list_of_reasons(self, filename):
         self.student_partial_grade_handler.load_list_of_reasons(filename)

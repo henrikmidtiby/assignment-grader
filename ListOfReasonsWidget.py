@@ -1,3 +1,4 @@
+import re
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
@@ -6,7 +7,7 @@ from gi.repository import Gtk, Gdk, GObject
 class ListOfReasonsWidget(Gtk.TextView):
     __gsignals__ = {
         'reason_selected': (GObject.SIGNAL_RUN_FIRST, None,
-                      (str,))
+                      (int, str))
     }
 
     def __init__(self):
@@ -22,8 +23,8 @@ class ListOfReasonsWidget(Gtk.TextView):
     def click_in_list_of_reasons(self, tag, widget, event, iter):
         if event.type == Gdk.EventType.BUTTON_PRESS:
             clicked_reason = self.get_content_of_reason_tag_indicated_by_iter(iter)
-            self.emit('reason_selected', clicked_reason)
-            # self.update_reason_for_current_question(clicked_reason)
+            point, reason = self.interpret_clicked_reason(clicked_reason)
+            self.emit('reason_selected', point, reason)
 
     def get_content_of_reason_tag_indicated_by_iter(self, iter):
         end_iter = iter.copy()
@@ -32,6 +33,13 @@ class ListOfReasonsWidget(Gtk.TextView):
         clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
         return clicked_reason
 
+    def interpret_clicked_reason(self, clicked_reason):
+        pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
+        res = pattern.match(clicked_reason)
+        if res:
+            point = int(res.group(1))
+            reason = res.group(2)
+            return point, reason
 
     def update_list_of_reasons(self, question, point, partial_grade_handler):
         self.list_of_reasons_buffer.set_text('')
