@@ -4,13 +4,13 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
-
-ScoreAndReason = collections.namedtuple('ScoreAndReason', ['score', 'reason'])
+import StudentPartialGradeHandler
 
 
 class MyWindow(Gtk.Window):
 
     def __init__(self, file_with_question_names, file_with_student_names):
+        self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
         Gtk.Window.__init__(self, title="Assignment grader")
         self.resize(1300, 700)
 
@@ -58,7 +58,7 @@ class MyWindow(Gtk.Window):
 
     def on_click_me_clicked(self, t1):
         print("Saving data")
-        self.save_reasons_to_a_file('testing.csv')
+        self.student_partial_grade_handler.save_reasons_to_a_file('testing.csv')
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
@@ -163,7 +163,7 @@ class MyWindow(Gtk.Window):
     def update_list_of_reasons(self, question, point):
         self.list_of_reasons_buffer.set_text('')
         if point is None:
-            for point_key in self.dict_of_reasons[question]:
+            for point_key in self.student_partial_grade_handler.dict_of_reasons[question]:
                 self.given_point_insert_all_matching_reasons(point_key, question)
         else:
             self.given_point_insert_all_matching_reasons(point - 1, question)
@@ -171,11 +171,11 @@ class MyWindow(Gtk.Window):
             self.given_point_insert_all_matching_reasons(point + 1, question)
 
     def given_point_insert_all_matching_reasons(self, point, question):
-        for reason_key in self.dict_of_reasons[question][point]:
+        for reason_key in self.student_partial_grade_handler.dict_of_reasons[question][point]:
             self.insert_point_and_reason_in_list(question, point, reason_key)
 
     def insert_point_and_reason_in_list(self, question, point, reason):
-        multiplicity = self.dict_of_reasons[question][point][reason]
+        multiplicity = self.student_partial_grade_handler.dict_of_reasons[question][point][reason]
         end_iter = self.list_of_reasons_buffer.get_end_iter()
         new_reason = "%2d (%s) - %s" % (point, multiplicity, reason)
         self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
@@ -214,35 +214,7 @@ class MyWindow(Gtk.Window):
             self.grid_reasons[self.last_updated_row].set_text(reason)
 
     def load_list_of_reasons(self, filename):
-        self.dict_of_reasons = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
-        self.dict_of_score_and_reasons = collections.defaultdict(lambda: collections.defaultdict(list))
-        for (student_id, question, point, reason) in self.extract_reasons_from_file(filename):
-            self.dict_of_reasons[question][point][reason] += 1
-            self.dict_of_score_and_reasons[student_id][question] = ScoreAndReason(point, reason)
-
-    @staticmethod
-    def extract_reasons_from_file(filename):
-        # agreg15	1a	2	Punkterne
-        pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
-        with open(filename) as file_handle:
-            for line in file_handle:
-                res = pattern.match(line)
-                if res:
-                    student_id = res.group(1)
-                    question = res.group(2)
-                    point = int(res.group(3))
-                    reason = res.group(4)
-                    yield (student_id, question, point, reason)
-
-    def save_reasons_to_a_file(self, filename):
-        with open(filename, 'w') as file_handle:
-            student_id = self.current_student_id
-            for row in range(self.grid_k):
-                question_id = self.grid_labels[row].get_text()
-                points = self.grid_points[row].get_text()
-                reason = self.grid_reasons[row].get_text()
-                print("%s\t%s\t%s\t%s" % (student_id, question_id, points, reason),
-                      file = file_handle)
+        self.student_partial_grade_handler.load_list_of_reasons(filename)
 
 win = MyWindow('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
