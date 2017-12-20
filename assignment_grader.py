@@ -58,6 +58,9 @@ class AssignmentGrader(Gtk.Window):
         self.v_box.pack_start(button, False, False, 0)
 
     def on_save_button_clicked(self, t1):
+        current_partial_grades = self.grid_with_entry.get_all_partial_grades()
+        print(current_partial_grades)
+        # Todo: Save list of grades
         self.student_partial_grade_handler.save_reasons_to_a_file('testing.csv')
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
@@ -72,6 +75,10 @@ class AssignmentGrader(Gtk.Window):
         self.h_box.pack_start(self.grid_with_entry, False, False, 0)
 
     def update_list_of_reasons_based_on_a_single_row(self, placeholder):
+        partial_grades = self.grid_with_entry.get_all_partial_grades()
+        student_id = self.current_student_id
+        self.student_partial_grade_handler.set_partial_grades(student_id, partial_grades)
+        # Todo: Update list of reasons in self.student_partial_grade_handler so the data can be saved afterwards.
         question_id = self.grid_with_entry.get_question_id_of_last_active_row()
         point = self.grid_with_entry.get_points_for_subquestion_of_last_active_row()
         self.list_of_reasons.update_list_of_reasons(question_id, point, self.student_partial_grade_handler)

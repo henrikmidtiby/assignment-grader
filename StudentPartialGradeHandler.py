@@ -28,11 +28,22 @@ class StudentPartialGradeHandler:
 
     def save_reasons_to_a_file(self, filename):
         with open(filename, 'w') as file_handle:
-            student_id = self.current_student_id
-            for row in range(self.grid_k):
-                question_id = self.grid_labels[row].get_text()
-                points = self.grid_points[row].get_text()
-                reason = self.grid_reasons[row].get_text()
+            for student_id, question_id, points, reason in self.get_evaluation_lines_for_export_to_file():
                 print("%s\t%s\t%s\t%s" % (student_id, question_id, points, reason),
                       file = file_handle)
+
+    def get_evaluation_lines_for_export_to_file(self):
+        for student_id in sorted(self.dict_of_score_and_reasons.keys()):
+            student_scores = self.dict_of_score_and_reasons[student_id]
+            for question_id in sorted(student_scores.keys()):
+                score = student_scores[question_id].score
+                reason = student_scores[question_id].reason
+                yield student_id, question_id, score, reason
+
+    def set_partial_grades(self, student_id, partial_grades):
+        self.dict_of_score_and_reasons[student_id].clear()
+        for grade in partial_grades:
+            score_and_reason = ScoreAndReason(grade.grade, grade.reason)
+            self.dict_of_score_and_reasons[student_id][grade.question_id] = score_and_reason
+
 
