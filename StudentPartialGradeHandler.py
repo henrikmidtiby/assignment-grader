@@ -52,6 +52,7 @@ class StudentPartialGradeHandler:
                 yield student_id, question_id, score, reason
 
     def set_partial_grades(self, student_id, partial_grades):
+        assert(student_id is not None)
         self.dict_of_score_and_reasons[student_id].clear()
         for grade in partial_grades:
             score_and_reason = ScoreAndReason(grade.grade, grade.reason)
@@ -60,4 +61,5 @@ class StudentPartialGradeHandler:
 
     def get_partial_grades(self, student_id):
         return dict(self.dict_of_score_and_reasons[student_id])
+
 
