@@ -121,3 +121,16 @@ class SubQuestionGradingGrid(Gtk.Grid):
         for k in range(self.grid_k):
             self.grid_points[k - 1].set_text("")
             self.grid_reasons[k - 1].set_text("")
+
+    def set_fields_to_previous_values(self, values):
+        for k in range(self.grid_k - 1):
+            try:
+                question_id = self.grid_labels[k].get_text()
+                points = values[question_id].score
+                comment = values[question_id].reason
+                self.grid_points[k].set_text(str(points))
+                self.grid_reasons[k].set_text(comment)
+            except KeyError as e:
+                pass
+            except Exception as e:
+                print("Exception")
