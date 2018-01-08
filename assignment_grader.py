@@ -21,6 +21,9 @@ class AssignmentGrader(Gtk.Window):
         self.add_save_button()
         self.add_grid_entry_and_reason_list(file_with_question_names)
 
+    def initialise_view(self):
+        self.name_combo.set_active(0)
+
     def add_student_selector(self, file_with_student_names):
         self.load_list_of_students(file_with_student_names)
         self.add_combo_box_with_student_names_from_name_store()
@@ -98,6 +101,7 @@ class AssignmentGrader(Gtk.Window):
 
 win = AssignmentGrader('questions.txt', 'students.txt')
 win.connect("delete-event", Gtk.main_quit)
+win.load_list_of_reasons('testing.csv')
+win.initialise_view()
 win.show_all()
-win.load_list_of_reasons('statistics.csv')
 Gtk.main()
