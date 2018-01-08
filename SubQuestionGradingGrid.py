@@ -83,7 +83,6 @@ class SubQuestionGradingGrid(Gtk.Grid):
 
     def event_catcher(self, entry, event, k):
         self.last_updated_row = k - 1
-        print(event.type, k)
         self.emit("sub_question_line_has_changed")
 
     def get_question_id_of_last_active_row(self):

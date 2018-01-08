@@ -58,4 +58,6 @@ class StudentPartialGradeHandler:
             self.dict_of_score_and_reasons[student_id][grade.question_id] = score_and_reason
         self.rebuild_dict_of_reasons()
 
+    def get_partial_grades(self, student_id):
+        return dict(self.dict_of_score_and_reasons[student_id])
 
