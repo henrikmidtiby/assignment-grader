@@ -55,7 +55,6 @@ class AssignmentGrader(Gtk.Window):
             student_id = model[tree_iter][0]
             self.current_student_id = student_id
         self.grid_with_entry.clean_all_fields()
-        # TODO: Fill with previous assigned partial grades
         values = self.student_partial_grade_handler.get_partial_grades(self.current_student_id)
         self.grid_with_entry.set_fields_to_previous_values(values)
         self.student_partial_grade_handler.save_reasons_to_a_file('testing.csv')
