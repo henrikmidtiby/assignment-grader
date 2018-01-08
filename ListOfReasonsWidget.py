@@ -45,13 +45,19 @@ class ListOfReasonsWidget(Gtk.TextView):
     def update_list_of_reasons(self, question, point, partial_grade_handler):
         self.list_of_reasons_buffer.set_text('')
         if point is None:
-            point_keys = partial_grade_handler.dict_of_reasons[question].keys()
-            for point_key in sorted(point_keys, key=lambda temp: int('%s0' % temp)):
-                self.given_point_insert_all_matching_reasons(point_key, question, partial_grade_handler)
+            self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
         else:
-            self.given_point_insert_all_matching_reasons(point - 1, question, partial_grade_handler)
-            self.given_point_insert_all_matching_reasons(point, question, partial_grade_handler)
-            self.given_point_insert_all_matching_reasons(point + 1, question, partial_grade_handler)
+            self.show_given_reasons_close_to_the_score(partial_grade_handler, point, question)
+
+    def show_add_given_reasons_for_this_question(self, partial_grade_handler, question):
+        point_keys = partial_grade_handler.dict_of_reasons[question].keys()
+        for point_key in sorted(point_keys, key=lambda temp: int('%s0' % temp)):
+            self.given_point_insert_all_matching_reasons(point_key, question, partial_grade_handler)
+
+    def show_given_reasons_close_to_the_score(self, partial_grade_handler, point, question):
+        self.given_point_insert_all_matching_reasons(point - 1, question, partial_grade_handler)
+        self.given_point_insert_all_matching_reasons(point, question, partial_grade_handler)
+        self.given_point_insert_all_matching_reasons(point + 1, question, partial_grade_handler)
 
     def given_point_insert_all_matching_reasons(self, point, question, partial_grade_handler):
         for reason_key in partial_grade_handler.dict_of_reasons[question][str(point)].keys():
