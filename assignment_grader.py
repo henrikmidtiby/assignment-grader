@@ -1,18 +1,44 @@
 import re
+import sys
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Gio
 
 import StudentPartialGradeHandler
 import SubQuestionGradingGrid
 import ListOfReasonsWidget
 
 
-class AssignmentGrader(Gtk.Window):
+MENU_XML = """
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="app-menu">
+    <section>
+      <item>
+        <attribute name="action">app.next_item</attribute>
+        <attribute name="label" translatable="yes">_Next item</attribute>
+        <attribute name="accel">&lt;Primary&gt;n</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.previous_item</attribute>
+        <attribute name="label" translatable="yes">_Previous item</attribute>
+        <attribute name="accel">&lt;Primary&gt;p</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.quit</attribute>
+        <attribute name="label" translatable="yes">_Quit</attribute>
+        <attribute name="accel">&lt;Primary&gt;q</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>
+"""
 
-    def __init__(self, file_with_question_names, file_with_student_names):
+
+class AssignmentGrader(Gtk.ApplicationWindow):
+    def __init__(self, app, file_with_question_names, file_with_student_names):
         self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
-        Gtk.Window.__init__(self, title="Assignment grader")
+        Gtk.Window.__init__(self, title="Assignment grader", application = app)
         self.resize(1300, 700)
 
         self.v_box = Gtk.VBox()
@@ -98,9 +124,24 @@ class AssignmentGrader(Gtk.Window):
     def load_list_of_reasons(self, filename):
         self.student_partial_grade_handler.load_list_of_reasons(filename)
 
-win = AssignmentGrader('questions.txt', 'students.txt')
-win.connect("delete-event", Gtk.main_quit)
-win.load_list_of_reasons('testing.csv')
-win.initialise_view()
-win.show_all()
-Gtk.main()
+
+class MyApplication(Gtk.Application):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, application_id="org.sdu.midtiby.assignment_grader",
+                         **kwargs)
+
+    def do_activate(self):
+        win = AssignmentGrader(self, 'questions.txt', 'students.txt')
+        win.load_list_of_reasons('testing.csv')
+        win.initialise_view()
+        win.show_all()
+
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
+
+        builder = Gtk.Builder.new_from_string(MENU_XML, -1)
+        self.set_app_menu(builder.get_object("app-menu"))
+
+app = MyApplication()
+exit_status = app.run(sys.argv)
+sys.exit(exit_status)
