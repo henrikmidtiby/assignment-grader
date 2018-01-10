@@ -15,6 +15,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         self.list_of_reasons_buffer = Gtk.TextBuffer()
         self.set_editable(False)
         self.set_cursor_visible(False)
+        self.set_can_focus(False)
         self.set_buffer(self.list_of_reasons_buffer)
         self.list_of_reasons_buffer.set_text('')
         self.reason_tag = self.list_of_reasons_buffer.create_tag('reason_tag')
