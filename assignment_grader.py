@@ -3,6 +3,7 @@ import sys
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, Gio
+import argparse
 import StudentPartialGradeHandler
 import SubQuestionGradingGrid
 import ListOfReasonsWidget
@@ -135,10 +136,18 @@ class MyApplication(Gtk.Application):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, application_id="org.sdu.midtiby.assignment_grader",
                          **kwargs)
+        self.question_file = None
+        self.student_file = None
+        self.grade_file = None
+
+    def set_input_files(self, questions, students, grades):
+        self.question_file = questions
+        self.student_file = students
+        self.grade_file = grades
 
     def do_activate(self):
-        win = AssignmentGrader(self, 'questions.txt', 'students.txt')
-        win.load_list_of_reasons('testing.csv')
+        win = AssignmentGrader(self, self.question_file, self.student_file)
+        win.load_list_of_reasons(self.grade_file)
         win.initialise_view()
         win.show_all()
 
@@ -149,6 +158,13 @@ class MyApplication(Gtk.Application):
         self.set_app_menu(builder.get_object("app-menu"))
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--questions", help="which sub questions should be graded", default='questions.txt')
+parser.add_argument("--students", help="which students should be graded", default='students.txt')
+parser.add_argument("--grades", help="where to store the grades (filename)", default='testing.csv')
+args = parser.parse_args()
+
 app = MyApplication()
+app.set_input_files(args.questions, args.students, args.grades)
 exit_status = app.run(sys.argv)
 sys.exit(exit_status)
