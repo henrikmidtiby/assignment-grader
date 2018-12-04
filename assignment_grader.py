@@ -37,7 +37,7 @@ MENU_XML = """
 
 
 class AssignmentGrader(Gtk.ApplicationWindow):
-    def __init__(self, app, file_with_question_names, file_with_student_names):
+    def __init__(self, app, file_with_question_names, file_with_student_names, file_with_grades):
         self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
         self.list_of_reasons = None
         self.grid_with_entry = None
@@ -45,6 +45,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.current_student_id = None
         self.name_store = None
         self.name_combo = None
+        self.file_with_grades = file_with_grades
         Gtk.Window.__init__(self, title="Assignment grader", application=app)
         self.resize(1300, 700)
 
@@ -90,7 +91,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.grid_with_entry.clean_all_fields()
         values = self.student_partial_grade_handler.get_partial_grades(self.current_student_id)
         self.grid_with_entry.set_fields_to_previous_values(values)
-        self.student_partial_grade_handler.save_reasons_to_a_file('testing.csv')
+        self.student_partial_grade_handler.save_reasons_to_a_file(self.file_with_grades)
 
     def add_save_button(self):
         button = Gtk.Button.new_with_label("Save")
@@ -98,7 +99,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.v_box.pack_start(button, False, False, 0)
 
     def on_save_button_clicked(self, t1):
-        self.student_partial_grade_handler.save_reasons_to_a_file('testing.csv')
+        self.student_partial_grade_handler.save_reasons_to_a_file(self.file_with_grades)
 
     def add_grid_entry_and_reason_list(self, file_with_question_names):
         self.h_box = Gtk.HBox(spacing=6)
@@ -145,7 +146,7 @@ class MyApplication(Gtk.Application):
         self.grade_file = grades
 
     def do_activate(self):
-        win = AssignmentGrader(self, self.question_file, self.student_file)
+        win = AssignmentGrader(self, self.question_file, self.student_file, self.grade_file)
         win.load_list_of_reasons(self.grade_file)
         win.initialise_view()
         win.show_all()
