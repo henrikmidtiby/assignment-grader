@@ -27,15 +27,18 @@ class StudentPartialGradeHandler:
     def extract_reasons_from_file(filename):
         # agreg15	1a	2	Punkterne
         pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
-        with open(filename) as file_handle:
-            for line in file_handle:
-                res = pattern.match(line)
-                if res:
-                    student_id = res.group(1)
-                    question = res.group(2)
-                    point = int(res.group(3))
-                    reason = res.group(4)
-                    yield (student_id, question, point, reason)
+        try:
+            with open(filename) as file_handle:
+                for line in file_handle:
+                    res = pattern.match(line)
+                    if res:
+                        student_id = res.group(1)
+                        question = res.group(2)
+                        point = int(res.group(3))
+                        reason = res.group(4)
+                        yield (student_id, question, point, reason)
+        except FileNotFoundError:
+            print("File not found '%s'." % filename)
 
     def save_reasons_to_a_file(self, filename):
         with open(filename, 'w') as file_handle:
