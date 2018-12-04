@@ -133,9 +133,8 @@ class AssignmentGrader(Gtk.ApplicationWindow):
 
 
 class MyApplication(Gtk.Application):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, application_id="org.sdu.midtiby.assignment_grader",
-                         **kwargs)
+    def __init__(self):
+        super().__init__(application_id="org.sdu.midtiby.assignment_grader")
         self.question_file = None
         self.student_file = None
         self.grade_file = None
@@ -166,5 +165,5 @@ args = parser.parse_args()
 
 app = MyApplication()
 app.set_input_files(args.questions, args.students, args.grades)
-exit_status = app.run(sys.argv)
+exit_status = app.run()
 sys.exit(exit_status)
