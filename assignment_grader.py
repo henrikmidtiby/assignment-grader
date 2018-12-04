@@ -3,10 +3,10 @@ import sys
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, Gio
-
 import StudentPartialGradeHandler
 import SubQuestionGradingGrid
 import ListOfReasonsWidget
+
 
 
 MENU_XML = """
@@ -38,7 +38,13 @@ MENU_XML = """
 class AssignmentGrader(Gtk.ApplicationWindow):
     def __init__(self, app, file_with_question_names, file_with_student_names):
         self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
-        Gtk.Window.__init__(self, title="Assignment grader", application = app)
+        self.list_of_reasons = None
+        self.grid_with_entry = None
+        self.h_box = None
+        self.current_student_id = None
+        self.name_store = None
+        self.name_combo = None
+        Gtk.Window.__init__(self, title="Assignment grader", application=app)
         self.resize(1300, 700)
 
         self.v_box = Gtk.VBox()
@@ -76,7 +82,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
 
     def on_name_combo_changed(self, combo):
         tree_iter = combo.get_active_iter()
-        if tree_iter != None:
+        if tree_iter is not None:
             model = combo.get_model()
             student_id = model[tree_iter][0]
             self.current_student_id = student_id
@@ -141,6 +147,7 @@ class MyApplication(Gtk.Application):
 
         builder = Gtk.Builder.new_from_string(MENU_XML, -1)
         self.set_app_menu(builder.get_object("app-menu"))
+
 
 app = MyApplication()
 exit_status = app.run(sys.argv)
