@@ -40,30 +40,32 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_k = 1
 
     def add_rows_to_grid(self, file_with_question_names):
-        for question in self.extract_questions_from_file(file_with_question_names):
-            self.add_row_of_entry_fields(question)
+        for question, description in self.extract_questions_from_file(file_with_question_names):
+            self.add_row_of_entry_fields(question, description)
 
     @staticmethod
     def extract_questions_from_file(file_with_question_names):
         with open(file_with_question_names) as file_handle:
             for line in file_handle:
-                pattern = re.compile("(\d[a-z])")
+                pattern = re.compile("(\d[a-z])\s*(.*)")
                 res = pattern.match(line)
                 if res:
                     question = res.group(1)
-                    yield question
+                    description = res.group(2)
+                    yield question, description
 
-    def add_row_of_entry_fields(self, question):
+    def add_row_of_entry_fields(self, question, description):
         entry_point_min_width = 4
         entry_reason_min_width = 60
 
-        self.add_new_question_entry_in_grid(question)
+        self.add_new_question_entry_in_grid(question, description)
         self.add_new_point_entry_in_grid(entry_point_min_width)
         self.add_new_reason_entry_in_grid(entry_reason_min_width)
         self.grid_k += 1
 
-    def add_new_question_entry_in_grid(self, question):
+    def add_new_question_entry_in_grid(self, question, description):
         question_id = Gtk.Label(question)
+        question_id.set_tooltip_text(description)
         self.attach(question_id, 0, self.grid_k, 1, 1)
         self.grid_labels.append(question_id)
 
