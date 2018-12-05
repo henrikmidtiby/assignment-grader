@@ -7,7 +7,7 @@ import argparse
 import StudentPartialGradeHandler
 import SubQuestionGradingGrid
 import ListOfReasonsWidget
-
+from DebugDecorator import debug
 
 
 MENU_XML = """
