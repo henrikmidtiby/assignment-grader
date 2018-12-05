@@ -90,6 +90,9 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def get_question_id_of_last_active_row(self):
         return self.grid_labels[self.last_updated_row].get_text()
 
+    def get_question_description_of_last_active_row(self):
+        return self.grid_labels[self.last_updated_row].get_tooltip_text()
+
     def get_points_for_subquestion_of_last_active_row(self):
         point_str = self.grid_points[self.last_updated_row].get_text()
         try:

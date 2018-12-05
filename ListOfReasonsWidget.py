@@ -43,8 +43,13 @@ class ListOfReasonsWidget(Gtk.TextView):
             reason = res.group(2)
             return point, reason
 
-    def update_list_of_reasons(self, question, point, partial_grade_handler):
-        self.list_of_reasons_buffer.set_text('')
+    def update_list_of_reasons(self, question, question_description, point, partial_grade_handler):
+        """
+        Is called when the list of reasons for a certain sub evaluation should be updated.
+        Then the description of the question is inserted on the first line and the
+        earlier used descriptions are inserted below.
+        """
+        self.list_of_reasons_buffer.set_text("%s\n" % question_description)
         if point is None:
             self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
         else:

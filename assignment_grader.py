@@ -113,12 +113,19 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.h_box.pack_start(self.grid_with_entry, False, False, 0)
 
     def update_list_of_reasons_based_on_a_single_row(self, placeholder):
+        """
+        This method is called when a field for entering partial grades
+        is given focus or its content is changed.
+        :param placeholder:
+        :return:
+        """
         partial_grades = self.grid_with_entry.get_all_partial_grades()
         student_id = self.current_student_id
         self.student_partial_grade_handler.set_partial_grades(student_id, partial_grades)
         question_id = self.grid_with_entry.get_question_id_of_last_active_row()
+        question_description = self.grid_with_entry.get_question_description_of_last_active_row()
         point = self.grid_with_entry.get_points_for_subquestion_of_last_active_row()
-        self.list_of_reasons.update_list_of_reasons(question_id, point, self.student_partial_grade_handler)
+        self.list_of_reasons.update_list_of_reasons(question_id, question_description, point, self.student_partial_grade_handler)
 
     def add_list_of_reasons_widget(self):
         self.list_of_reasons = ListOfReasonsWidget.ListOfReasonsWidget()
