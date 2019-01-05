@@ -47,7 +47,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def extract_questions_from_file(file_with_question_names):
         with open(file_with_question_names) as file_handle:
             for line in file_handle:
-                pattern = re.compile("(\d[a-z])\s*(.*)")
+                pattern = re.compile("(\d[a-z]\d*)\s*(.*)")
                 res = pattern.match(line)
                 if res:
                     question = res.group(1)
