@@ -5,8 +5,8 @@ ScoreAndReason = collections.namedtuple('ScoreAndReason', ['score', 'reason'])
 
 
 class StudentPartialGradeHandler:
-    def load_list_of_reasons(self, filename):
-        self.dict_of_score_and_reasons = collections.defaultdict(lambda: collections.defaultdict(list))
+    def load_list_of_reasons(self, filename: str):
+        self.dict_of_score_and_reasons: dict = collections.defaultdict(lambda: collections.defaultdict(list))
         for (student_id, question, point, reason) in self.extract_reasons_from_file(filename):
             self.dict_of_score_and_reasons[student_id][question] = ScoreAndReason(point, reason)
         self.rebuild_dict_of_reasons()
@@ -24,7 +24,7 @@ class StudentPartialGradeHandler:
                 yield student_id, question_id, str(question_partial_grades.score), question_partial_grades.reason
 
     @staticmethod
-    def extract_reasons_from_file(filename):
+    def extract_reasons_from_file(filename: str):
         # agreg15	1a	2	Punkterne
         pattern = re.compile('(.*)\t(.*)\t(\d+)\t(.*)')
         try:
@@ -40,7 +40,7 @@ class StudentPartialGradeHandler:
         except FileNotFoundError:
             print("File not found '%s'." % filename)
 
-    def save_reasons_to_a_file(self, filename):
+    def save_reasons_to_a_file(self, filename: str):
         with open(filename, 'w') as file_handle:
             for student_id, question_id, points, reason in self.get_evaluation_lines_for_export_to_file():
                 print("%s\t%s\t%s\t%s" % (student_id, question_id, points, reason),
@@ -54,7 +54,7 @@ class StudentPartialGradeHandler:
                 reason = student_scores[question_id].reason
                 yield student_id, question_id, score, reason
 
-    def set_partial_grades(self, student_id, partial_grades):
+    def set_partial_grades(self, student_id: str, partial_grades: list):
         assert(student_id is not None)
         self.dict_of_score_and_reasons[student_id].clear()
         for grade in partial_grades:

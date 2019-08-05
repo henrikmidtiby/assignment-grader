@@ -1,6 +1,7 @@
 import re
 import collections
 import gi
+from typing import List
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject
 
@@ -14,11 +15,11 @@ class SubQuestionGradingGrid(Gtk.Grid):
                       ())
     }
 
-    def __init__(self, file_with_question_names):
+    def __init__(self, file_with_question_names: str) -> None:
         Gtk.Grid.__init__(self)
         self.add_grid_with_entry_fields(file_with_question_names)
 
-    def add_grid_with_entry_fields(self, file_with_question_names):
+    def add_grid_with_entry_fields(self, file_with_question_names: str):
         self.set_size_request(900, -1)
         self.set_column_spacing(10)
         self.add_column_headers_for_entry_rows()
@@ -39,12 +40,12 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_reasons = []
         self.grid_k = 1
 
-    def add_rows_to_grid(self, file_with_question_names):
+    def add_rows_to_grid(self, file_with_question_names: str):
         for question, description in self.extract_questions_from_file(file_with_question_names):
             self.add_row_of_entry_fields(question, description)
 
     @staticmethod
-    def extract_questions_from_file(file_with_question_names):
+    def extract_questions_from_file(file_with_question_names: str):
         with open(file_with_question_names) as file_handle:
             for line in file_handle:
                 pattern = re.compile("(\d[a-z]\d*)\s*(.*)")
@@ -54,7 +55,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
                     description = res.group(2)
                     yield question, description
 
-    def add_row_of_entry_fields(self, question, description):
+    def add_row_of_entry_fields(self, question: str, description: str):
         entry_point_min_width = 4
         entry_reason_min_width = 60
 
@@ -63,13 +64,13 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.add_new_reason_entry_in_grid(entry_reason_min_width)
         self.grid_k += 1
 
-    def add_new_question_entry_in_grid(self, question, description):
+    def add_new_question_entry_in_grid(self, question: str, description: str):
         question_id = Gtk.Label(question)
         question_id.set_tooltip_text(description)
         self.attach(question_id, 0, self.grid_k, 1, 1)
         self.grid_labels.append(question_id)
 
-    def add_new_point_entry_in_grid(self, entry_point_min_width):
+    def add_new_point_entry_in_grid(self, entry_point_min_width: float):
         point = Gtk.Entry()
         point.set_width_chars(entry_point_min_width)
         point.connect('event', self.event_catcher, self.grid_k)
@@ -77,20 +78,20 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_points.append(point)
         return point
 
-    def add_new_reason_entry_in_grid(self, entry_reason_min_width):
+    def add_new_reason_entry_in_grid(self, entry_reason_min_width: float):
         reason = Gtk.Entry()
         reason.set_width_chars(entry_reason_min_width)
         self.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
 
-    def event_catcher(self, entry, event, k):
+    def event_catcher(self, entry, event, k: int):
         self.last_updated_row = k - 1
         self.emit("sub_question_line_has_changed")
 
-    def get_question_id_of_last_active_row(self):
+    def get_question_id_of_last_active_row(self) -> str:
         return self.grid_labels[self.last_updated_row].get_text()
 
-    def get_question_description_of_last_active_row(self):
+    def get_question_description_of_last_active_row(self) -> str:
         return self.grid_labels[self.last_updated_row].get_tooltip_text()
 
     def get_points_for_subquestion_of_last_active_row(self):
@@ -107,14 +108,14 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def set_reason_for_subquestion_of_last_active_row(self, reason):
         return self.grid_reasons[self.last_updated_row].set_text(reason)
 
-    def get_all_partial_grades(self):
+    def get_all_partial_grades(self) -> List[QuestionGradeAndReason]:
         partial_grades = []
         for k in range(self.grid_k):
             partial_grade = self.get_partial_grade(k)
             partial_grades.append(partial_grade)
         return partial_grades
 
-    def get_partial_grade(self, k):
+    def get_partial_grade(self, k: int) -> QuestionGradeAndReason:
         k = k - 1
         question_id = self.grid_labels[k].get_text()
         point = self.grid_points[k].get_text()
@@ -127,7 +128,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
             self.grid_points[k - 1].set_text("")
             self.grid_reasons[k - 1].set_text("")
 
-    def set_fields_to_previous_values(self, values):
+    def set_fields_to_previous_values(self, values: dict):
         for k in range(self.grid_k - 1):
             try:
                 question_id = self.grid_labels[k].get_text()

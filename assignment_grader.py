@@ -37,13 +37,13 @@ MENU_XML = """
 
 
 class AssignmentGrader(Gtk.ApplicationWindow):
-    def __init__(self, app, file_with_question_names, file_with_student_names, file_with_grades):
+    def __init__(self, app, file_with_question_names: str, file_with_student_names: str, file_with_grades: str) -> None:
         self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
         self.list_of_reasons = None
-        self.grid_with_entry = None
-        self.h_box = None
+        self.grid_with_entry: SubQuestionGradingGrid.SubQuestionGradingGrid = None
+        self.h_box: Gtk.HBox = None
         self.current_student_id = None
-        self.name_store = None
+        self.name_store: list = None
         self.name_combo = None
         self.file_with_grades = file_with_grades
         Gtk.Window.__init__(self, title="Assignment grader", application=app)
@@ -58,11 +58,11 @@ class AssignmentGrader(Gtk.ApplicationWindow):
     def initialise_view(self):
         self.name_combo.set_active(0)
 
-    def add_student_selector(self, file_with_student_names):
+    def add_student_selector(self, file_with_student_names: str):
         self.load_list_of_students(file_with_student_names)
         self.add_combo_box_with_student_names_from_name_store()
 
-    def load_list_of_students(self, filename):
+    def load_list_of_students(self, filename: str):
         self.name_store = Gtk.ListStore(str)
 
         pattern = re.compile('(.*)')
@@ -101,13 +101,13 @@ class AssignmentGrader(Gtk.ApplicationWindow):
     def on_save_button_clicked(self, t1):
         self.student_partial_grade_handler.save_reasons_to_a_file(self.file_with_grades)
 
-    def add_grid_entry_and_reason_list(self, file_with_question_names):
+    def add_grid_entry_and_reason_list(self, file_with_question_names: str):
         self.h_box = Gtk.HBox(spacing=6)
         self.add_grid_entry_widget(file_with_question_names)
         self.add_list_of_reasons_widget()
         self.v_box.pack_start(self.h_box, False, False, 0)
 
-    def add_grid_entry_widget(self, file_with_question_names):
+    def add_grid_entry_widget(self, file_with_question_names: str):
         self.grid_with_entry = SubQuestionGradingGrid.SubQuestionGradingGrid(file_with_question_names)
         self.grid_with_entry.connect('sub_question_line_has_changed', self.update_list_of_reasons_based_on_a_single_row)
         self.h_box.pack_start(self.grid_with_entry, False, False, 0)
@@ -132,11 +132,11 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.list_of_reasons.connect('reason_selected', self.update_reason_for_current_question)
         self.h_box.pack_start(self.list_of_reasons, False, False, 0)
 
-    def update_reason_for_current_question(self, placeholder, point, reason):
+    def update_reason_for_current_question(self, placeholder, point: int, reason: str):
         self.grid_with_entry.set_points_for_subquestion_of_last_active_row(point)
         self.grid_with_entry.set_reason_for_subquestion_of_last_active_row(reason)
 
-    def load_list_of_reasons(self, filename):
+    def load_list_of_reasons(self, filename: str):
         self.student_partial_grade_handler.load_list_of_reasons(filename)
 
 
@@ -147,7 +147,7 @@ class MyApplication(Gtk.Application):
         self.student_file = None
         self.grade_file = None
 
-    def set_input_files(self, questions, students, grades):
+    def set_input_files(self, questions: str, students: str, grades: str):
         self.question_file = questions
         self.student_file = students
         self.grade_file = grades

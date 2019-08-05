@@ -11,7 +11,7 @@ class ListOfReasonsWidget(Gtk.TextView):
                       (int, str))
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         Gtk.TextView.__init__(self)
         self.list_of_reasons_buffer = Gtk.TextBuffer()
         self.set_editable(False)
@@ -36,7 +36,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
         return clicked_reason
 
-    def interpret_clicked_reason(self, clicked_reason):
+    def interpret_clicked_reason(self, clicked_reason: str):
         pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
         res = pattern.match(clicked_reason)
         if res:
@@ -44,7 +44,7 @@ class ListOfReasonsWidget(Gtk.TextView):
             reason = res.group(2)
             return point, reason
 
-    def update_list_of_reasons(self, question, question_description, point, partial_grade_handler):
+    def update_list_of_reasons(self, question: str, question_description: str, point, partial_grade_handler):
         """
         Is called when the list of reasons for a certain sub evaluation should be updated.
         Then the description of the question is inserted on the first line and the
@@ -56,21 +56,21 @@ class ListOfReasonsWidget(Gtk.TextView):
         else:
             self.show_given_reasons_close_to_the_score(partial_grade_handler, point, question)
 
-    def show_add_given_reasons_for_this_question(self, partial_grade_handler, question):
+    def show_add_given_reasons_for_this_question(self, partial_grade_handler, question: str):
         point_keys = partial_grade_handler.dict_of_reasons[question].keys()
         for point_key in sorted(point_keys, key=lambda temp: int('%s0' % temp)):
             self.given_point_insert_all_matching_reasons(point_key, question, partial_grade_handler)
 
-    def show_given_reasons_close_to_the_score(self, partial_grade_handler, point, question):
+    def show_given_reasons_close_to_the_score(self, partial_grade_handler, point: int, question: str):
         self.given_point_insert_all_matching_reasons(point - 1, question, partial_grade_handler)
         self.given_point_insert_all_matching_reasons(point, question, partial_grade_handler)
         self.given_point_insert_all_matching_reasons(point + 1, question, partial_grade_handler)
 
-    def given_point_insert_all_matching_reasons(self, point, question, partial_grade_handler):
+    def given_point_insert_all_matching_reasons(self, point, question: str, partial_grade_handler):
         for reason_key in partial_grade_handler.dict_of_reasons[question][str(point)].keys():
             self.insert_point_and_reason_in_list(question, point, reason_key, partial_grade_handler)
 
-    def insert_point_and_reason_in_list(self, question, point, reason, partial_grade_handler):
+    def insert_point_and_reason_in_list(self, question: str, point, reason: str, partial_grade_handler):
         multiplicity = partial_grade_handler.dict_of_reasons[question][str(point)][reason]
         end_iter = self.list_of_reasons_buffer.get_end_iter()
         new_reason = "%2s (%s) - %s" % (point, multiplicity, reason)
