@@ -1,10 +1,10 @@
-0a
-1a
-1b
-2a
-2b
-3a
-4a
-4b
-5a
-5b
+0a	10	fda
+1a	10	dsa
+1b	20	gasf
+2a	20	fasdsd
+2b	10	dsa
+3a	10	qwe
+4a	5	tre
+4b	5	fd
+5a	3	vc
+5b	10	asd

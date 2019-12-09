@@ -41,19 +41,20 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_k = 1
 
     def add_rows_to_grid(self, file_with_question_names: str):
-        for question, description in self.extract_questions_from_file(file_with_question_names):
-            self.add_row_of_entry_fields(question, description)
+        for question, weight, description in self.extract_questions_from_file(file_with_question_names):
+            self.add_row_of_entry_fields(question, "%s -- %s point" % (description, weight))
 
     @staticmethod
     def extract_questions_from_file(file_with_question_names: str):
         with open(file_with_question_names) as file_handle:
             for line in file_handle:
-                pattern = re.compile("(\d[a-z]\d*)\s*(.*)")
+                pattern = re.compile("(\d[a-z]\d*)\s+(\d*)\s*(.*)")
                 res = pattern.match(line)
                 if res:
                     question = res.group(1)
-                    description = res.group(2)
-                    yield question, description
+                    weight = res.group(2)
+                    description = res.group(3)
+                    yield question, weight, description
 
     def add_row_of_entry_fields(self, question: str, description: str):
         entry_point_min_width = 4
