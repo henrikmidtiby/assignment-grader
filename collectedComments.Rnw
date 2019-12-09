@@ -1,0 +1,297 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[textwidth=4cm]{todonotes}
+\usepackage[linkcolor=blue, colorlinks]{hyperref}
+\DeclareUnicodeCharacter{00A0}{ }
+\begin{document}
+% \SweaveOpts{concordance=TRUE}
+
+\newcommand{\gradingScale}[1]{
+\begin{tikzpicture}[remember picture, overlay, xshift=-5cm, scale=0.7]
+% Grades are on the scale [0; 10]
+\draw[line width=0.5cm, white, opacity=0.5] (0, 0) rectangle (10, 1);
+\draw (0, 0) rectangle (10, 1);
+\draw ( 2.7, 0) -- ++ (0, 1);
+\draw (	4.9, 0) -- ++ (0, 1);
+\draw (	5.4, 0) -- ++ (0, 1);
+\draw (	6.5, 0) -- ++ (0, 1);
+\draw (	7.9, 0) -- ++ (0, 1);
+\draw (	9.0, 0) -- ++ (0, 1);
+
+\draw (1.35, 0.5) node{-03};
+\draw (3.8, 0.5) node{00};
+\draw (5.15, 0.5) node{02};
+\draw (6.05, 0.5) node{4};
+\draw (7.20, 0.5) node{7};
+\draw (8.45, 0.5) node{10};
+\draw (9.50, 0.5) node{12};
+
+\draw[blue, fill=blue!40] (#1, 0.5) circle(0.2cm);
+\end{tikzpicture}
+}
+
+
+\tableofcontents 
+
+\newpage
+\section{Loading of data and initial test of data}
+<<echo=FALSE, message=FALSE>>=
+library(tidyverse)
+#library(corrgram)
+
+# Load information about questions and their weights.
+weights <- read_delim('questions.txt', "\t", 
+                      col_names = c("Name", "Weight", "Description"), 
+                      col_types = cols(
+                        Name = col_character(),
+                        Weight = col_double(),
+                        Description = col_character()
+                      )) %>%
+  mutate(ExerciseNames = sprintf("E%s", Name)) %>%
+#  mutate(ExerciseNames = factor(ExerciseNames)) %>%
+  select(ExerciseNames, Weight)
+
+# Load all the partial grades and calculate their weighted scores.
+data <- readr::read_delim('grades.txt', 
+                          delim='\t', 
+                          col_names = c('ID', 'Exercise', 'Point', 'Comment'), 
+                          col_types = cols(
+                            ID = col_character(),
+                            Exercise = col_character(),
+                            Point = col_integer(),
+                            Comment = col_character()
+                          )) %>%
+  mutate(ID = factor(ID), 
+         ExerciseNames = sprintf("E%s", Exercise)) %>%
+  left_join(weights, by = c('ExerciseNames')) %>%
+  mutate(WeightedScore = Point * Weight / 10.)
+
+numberOfEvaluatedSubExercises <- data %>%
+  group_by(ID) %>%
+  summarise(nrow = sum(1 + 0*Point), points = sum(Point))
+
+studentsWithMoreThanThreeEvaluatedSubExercises <- numberOfEvaluatedSubExercises %>%
+  filter(nrow > 2)
+  
+idsAndNames <- data %>%
+  select(ID) %>%
+  unique() %>%
+  mutate(name = ID)
+
+studentScores <- data %>%
+  filter(ID %in% studentsWithMoreThanThreeEvaluatedSubExercises$ID) %>%
+  mutate(ID = fct_drop(ID)) %>%
+  group_by(ID) %>%
+  summarise(totalScore = sum(WeightedScore, na.rm = TRUE))
+
+readr::write_delim(studentScores, 
+                   'student_scores.csv', 
+                   delim='\t')
+@
+
+\subsection{Students}
+List of all student ids observed in the loaded grade file.
+<<echo=FALSE>>=
+levels(data$ID)
+@
+
+\subsection{Number of graded elements per student}
+Number of graded elements for each student.
+<<echo=FALSE>>=
+numberOfEvaluatedSubExercises
+@
+
+\subsection{Not graded elements}
+List of ungraded elements (which ideally should be empty).
+<<echo=FALSE, warning=FALSE>>=
+combinationsIDAndExercises <- unique(data$ID) %>%
+  merge(unique(data$ExerciseNames)) %>%
+  mutate(ID = x, ExerciseNames = y) %>%
+  select(-x, -y) %>%
+  filter(ExerciseNames != "ENA")
+missingCombinations <- combinationsIDAndExercises %>%
+  anti_join(data, by=c("ID", "ExerciseNames"))
+missingCombinations
+@
+
+\newpage
+\section{Comments per student}
+<<echo=FALSE, results='asis'>>=
+for(oneId in sort(levels(data$ID)))
+{
+  # student_name <- subset(data, data$ID == oneId) %>% select(name) %>% unique %>% mutate(temp = toString(name)) %>% .$temp
+  if(oneId %in% idsAndNames$ID)
+  {
+    student_name <- idsAndNames %>% filter(ID == oneId) %>% mutate(temp = toString(name)) %>% .$temp
+  }
+  else
+  {
+    student_name <- "Unknown"
+  }
+  cat(sprintf("\\subsection{%s - %s}\n", oneId, student_name))
+  cat(sprintf("\\label{ssecID%s}\n", oneId))
+  temp <- subset(data, data$ID == oneId)
+  tempStudentScore <- subset(studentScores, studentScores$ID == oneId)
+  totalPoints <- sum(temp$Point, na.rm = TRUE)
+  cat(sprintf("Point: %s\n\\hfill", round(tempStudentScore$totalScore, 2)))
+  cat(sprintf("\\gradingScale{%.1f}\\newline", tempStudentScore$totalScore * 0.1))
+  temp$strings <- sprintf("\\textbf{\\hyperref[ssecExercise%s]{%s} - %.1f - %.1f}: %s \\\\\n", temp$Exercise, temp$Exercise, temp$Point, temp$WeightedScore, temp$Comment)
+  cat(temp$strings)
+  cat("\n\n")
+}
+@
+
+\newpage
+\section{Grade overview}
+<<echo=FALSE, results='asis'>>=
+for(oneId in sort(levels(data$ID)))
+{
+  # student_name <- subset(data, data$ID == oneId) %>% select(name) %>% unique %>% mutate(temp = toString(name)) %>% .$temp
+  if(oneId %in% idsAndNames$ID)
+  {
+    student_name <- idsAndNames %>% filter(ID == oneId) %>% mutate(temp = toString(name)) %>% .$temp
+  }
+  else
+  {
+    student_name <- "Unknown"
+  }
+  cat(sprintf("\\subsection{%s - %s}\n", oneId, student_name))
+  temp <- subset(data, data$ID == oneId)
+  tempStudentScore <- subset(studentScores, studentScores$ID == oneId)
+  totalPoints <- sum(temp$Point, na.rm = TRUE)
+  cat(sprintf("Point: %s - \\ref{ssecID%s}\n\\hfill", round(tempStudentScore$totalScore, 2), oneId))
+  cat(sprintf("\\gradingScale{%.1f}\\newline", tempStudentScore$totalScore * 0.1))
+  cat("\n\n")
+}
+@
+\newpage
+\section{Comments per exercise}
+<<echo=FALSE, results='asis'>>=
+for(oneExercise in levels(data$Exercise))
+{
+  cat(sprintf("\\subsection{%s}\n", oneExercise))
+  cat(sprintf("\\label{ssecExercise%s}\n", oneExercise))
+  temp <- subset(data, data$Exercise == oneExercise)
+  temp <- temp[order(temp$Point), ]
+  temp$strings <- sprintf("\\textbf{\\hyperref[ssecID%s]{%s} - %.1f - %.1f}: %s \\\\\n", temp$ID, temp$ID, temp$Point, temp$WeightedScore, temp$Comment)
+  cat(temp$strings)
+  cat("\n\n")
+
+}
+@
+
+
+\section{Statistics}
+
+\subsection{Graded elements}
+<<echo=FALSE, fig.height=10>>=
+tempData <- subset(data, data$Exercise != "SemesterActivity")
+ggplot(tempData) + 
+  geom_point(aes(Exercise, ID), size=5)
+@
+
+
+\newpage
+\subsection{Comparison of exercises}
+<<echo=FALSE, fig.height=4>>=
+ggplot(tempData) + 
+  geom_boxplot(aes(Exercise, Point)) + 
+  coord_flip()
+@
+
+\newpage
+\subsection{Best and worst halves, comparison}
+<<echo=FALSE>>=
+studentScoresGraded <- studentScores %>%
+  filter(!is.na(ID)) %>%
+  semi_join(numberOfEvaluatedSubExercises %>% filter(nrow > 2), by = c('ID' = 'ID'))
+
+passed <- studentScoresGraded
+passed$PointTotal <- studentScoresGraded$totalScore
+passed$passed <- passed$PointTotal > median(passed$PointTotal)
+temp <- merge(tempData, passed)
+temp$passed <- factor(temp$passed, levels=c(TRUE, FALSE), labels=c('Bedste', 'Dårligste'))
+ggplot(na.omit(temp)) + geom_boxplot(aes(Exercise, Point, fill=passed)) + coord_flip()
+ggplot(temp) + stat_ecdf(aes(Point, color=passed)) + facet_wrap(~Exercise)
+@
+
+\newpage
+\subsection{Grade distribution according to (vejledende) grade table}
+<<echo=FALSE, warning=FALSE>>=
+pointGradeCutoffs <- c(90, 79, 65, 54, 49, 27)
+studentScoresGraded$ecdf <- rank(studentScoresGraded$totalScore, ties.method = "first") / nrow(studentScoresGraded)
+ggplot(studentScoresGraded, aes(totalScore)) + 
+  stat_ecdf(geom='point') + stat_ecdf() + 
+  geom_vline(xintercept=pointGradeCutoffs, alpha=0.3) + 
+  xlim(0, 100) + 
+  geom_text(data = data.frame(x = c(13, 38, 51.5, 60.5, 72, 85.5, 95), val = c('-03', '00', '02', '4', '7', '10', '12')), aes(x, -0.05, label=val)) + 
+  geom_text(data = data.frame(x = pointGradeCutoffs), aes(x, -0.05, label=sprintf('%d %%', x), angle=-90)) + 
+  # xlab("Procent af fuld besvarelse") + 
+  ylab("") +
+  geom_text(aes(totalScore, ecdf, label = ID), angle = -15, hjust = 1.2) + 
+  geom_point(aes(totalScore, ecdf))
+@
+
+
+<<echo = FALSE>>=
+library(knitr)
+gradeDistribution <- studentScoresGraded %>%
+  mutate(suggestedGrade = cut(totalScore, 
+                              breaks = c(100, pointGradeCutoffs, -1),
+                              labels = c('-3', '00', '2', '4', '7', '10', '12'))) %>%
+  group_by(suggestedGrade) %>%
+  tally()
+
+kable(gradeDistribution, align = c('r', 'r'))
+@
+
+\newpage
+% \subsection{Korrelationer mellem de enkelte opgaver og samlet score}
+<<echo=FALSE>>=
+#temp <- data %>%
+#  na.omit() %>%
+#  select(ID, ExerciseNames, Point) %>%
+#  spread(ExerciseNames, Point) %>%
+#  merge(studentScores) %>%
+#  select(-ID)
+
+#corrgram(temp, order=TRUE, lower.panel=panel.shade,
+#  upper.panel=panel.pie, text.panel=panel.txt, 
+#  main="Correlation between exercises")
+@
+
+
+\newpage
+\subsection{Exercise types}
+
+<<echo=FALSE, warning=FALSE>>=
+reducedData <- data %>%
+  select(ID, ExerciseNames, Point) %>%
+  filter(!is.na(Point), !is.na(ID))
+
+reducedDataWide <- reducedData %>%
+  spread(ExerciseNames, Point)
+
+rownames(reducedDataWide) <- reducedDataWide$ID 
+
+reducedDataWide <- reducedDataWide %>%
+  select(-ID)
+@
+
+Similarity of exercises
+<<echo = FALSE>>=
+d <- dist(t(as.matrix(reducedDataWide)))
+hc <- hclust(d) 
+plot(hc)
+@
+
+Similarity of student grades
+<<echo = FALSE>>=
+d <- dist(as.matrix(reducedDataWide))
+hc <- hclust(d) 
+plot(hc)
+@
+
+
+\end{document}
