@@ -168,7 +168,7 @@ class MyApplication(Gtk.Application):
 parser = argparse.ArgumentParser()
 parser.add_argument("--questions", help="which sub questions should be graded", default='questions.txt')
 parser.add_argument("--students", help="which students should be graded", default='students.txt')
-parser.add_argument("--grades", help="where to store the grades (filename)", default='testing.csv')
+parser.add_argument("--grades", help="where to store the grades (filename)", default='grades.txt')
 args = parser.parse_args()
 
 app = MyApplication()
