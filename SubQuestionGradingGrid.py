@@ -81,12 +81,14 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def add_new_reason_entry_in_grid(self, entry_reason_min_width: float):
         reason = Gtk.Entry()
         reason.set_width_chars(entry_reason_min_width)
+        reason.connect('event', self.event_catcher, self.grid_k)
         self.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
 
     def event_catcher(self, entry, event, k: int):
-        self.last_updated_row = k - 1
-        self.emit("sub_question_line_has_changed")
+        if event.type == Gdk.EventType.FOCUS_CHANGE:
+            self.last_updated_row = k - 1
+            self.emit("sub_question_line_has_changed")
 
     def get_question_id_of_last_active_row(self) -> str:
         return self.grid_labels[self.last_updated_row].get_text()
