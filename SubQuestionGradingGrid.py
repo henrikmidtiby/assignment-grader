@@ -111,6 +111,13 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def set_reason_for_subquestion_of_last_active_row(self, reason):
         return self.grid_reasons[self.last_updated_row].set_text(reason)
 
+    def advance_active_row(self):
+        self.emit("sub_question_line_has_changed")
+        try:
+            self.grid_points[self.last_updated_row + 1].grab_focus()
+        except IndexError:
+            print("Warning: Not possible to advance to next question.")
+
     def get_all_partial_grades(self) -> List[QuestionGradeAndReason]:
         partial_grades = []
         for k in range(self.grid_k):

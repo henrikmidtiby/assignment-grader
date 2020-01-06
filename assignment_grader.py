@@ -135,6 +135,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
     def update_reason_for_current_question(self, placeholder, point: int, reason: str):
         self.grid_with_entry.set_points_for_subquestion_of_last_active_row(point)
         self.grid_with_entry.set_reason_for_subquestion_of_last_active_row(reason)
+        self.grid_with_entry.advance_active_row()
 
     def load_list_of_reasons(self, filename: str):
         self.student_partial_grade_handler.load_list_of_reasons(filename)
