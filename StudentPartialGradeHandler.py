@@ -41,6 +41,7 @@ class StudentPartialGradeHandler:
             print("File not found '%s'." % filename)
 
     def save_reasons_to_a_file(self, filename: str):
+        print("save_reasons_to_a_file")
         with open(filename, 'w') as file_handle:
             for student_id, question_id, points, reason in self.get_evaluation_lines_for_export_to_file():
                 print("%s\t%s\t%s\t%s" % (student_id, question_id, points, reason),
