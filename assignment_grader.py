@@ -63,22 +63,23 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.add_combo_box_with_student_names_from_name_store()
 
     def load_list_of_students(self, filename: str):
-        self.name_store = Gtk.ListStore(str)
-
+        self.name_store = Gtk.ListStore(str, str)
+        counter = 0
         pattern = re.compile('(.*)')
         with open(filename) as file_handle:
             for line in file_handle:
                 res = pattern.match(line)
                 if res:
                     student_id = res.group(1)
-                    self.name_store.append([student_id])
+                    counter += 1
+                    self.name_store.append([student_id, "%s - %d" % (student_id, counter)])
 
     def add_combo_box_with_student_names_from_name_store(self):
         self.current_student_id = None
         self.name_combo = Gtk.ComboBox.new_with_model(self.name_store)
         renderer_text = Gtk.CellRendererText()
         self.name_combo.pack_start(renderer_text, True)
-        self.name_combo.add_attribute(renderer_text, "text", 0)
+        self.name_combo.add_attribute(renderer_text, "text", 1)
         self.name_combo.connect("changed", self.on_name_combo_changed)
         self.v_box.pack_start(self.name_combo, False, False, 0)
 
