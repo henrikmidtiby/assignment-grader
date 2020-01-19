@@ -5,6 +5,9 @@
 \usepackage[linkcolor=blue, colorlinks]{hyperref}
 \DeclareUnicodeCharacter{00A0}{ }
 \begin{document}
+% To make this document work, choose to use knitr for weaving in RStudio.
+% The setting can be found in the location described below:
+% Tools -> GLobal Options -> Sweave -> Weave Rnw files with -> knitr
 % \SweaveOpts{concordance=TRUE}
 
 \newcommand{\gradingScale}[1]{
