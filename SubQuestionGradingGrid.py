@@ -20,7 +20,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.add_grid_with_entry_fields(file_with_question_names)
 
     def add_grid_with_entry_fields(self, file_with_question_names: str):
-        self.set_size_request(900, -1)
+        self.set_size_request(550, -1)
         self.set_column_spacing(10)
         self.add_column_headers_for_entry_rows()
         self.reset_grid_data_structure()
@@ -58,7 +58,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
 
     def add_row_of_entry_fields(self, question: str, description: str):
         entry_point_min_width = 4
-        entry_reason_min_width = 60
+        entry_reason_min_width = 50
 
         self.add_new_question_entry_in_grid(question, description)
         self.add_new_point_entry_in_grid(entry_point_min_width)

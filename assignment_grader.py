@@ -111,7 +111,20 @@ class AssignmentGrader(Gtk.ApplicationWindow):
     def add_grid_entry_widget(self, file_with_question_names: str):
         self.grid_with_entry = SubQuestionGradingGrid.SubQuestionGradingGrid(file_with_question_names)
         self.grid_with_entry.connect('sub_question_line_has_changed', self.update_list_of_reasons_based_on_a_single_row)
-        self.h_box.pack_start(self.grid_with_entry, False, False, 0)
+        self.scrolled_window = Gtk.ScrolledWindow()
+        self.scrolled_window.set_border_width(20)
+        self.scrolled_window.set_min_content_width(600)
+        self.scrolled_window.set_max_content_width(600)
+        self.scrolled_window.set_min_content_height(900)
+        self.scrolled_window.set_max_content_height(1500)
+        # TODO: Fix this so it is possible to resize the main window.
+        self.scrolled_window.set_vexpand(True)
+        self.scrolled_window.set_valign(0)
+        
+        self.scrolled_window.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS)
+        self.scrolled_window.add_with_viewport(self.grid_with_entry)
+        self.h_box.pack_start(self.scrolled_window, False, False, 0)
 
     def update_list_of_reasons_based_on_a_single_row(self, placeholder):
         """
