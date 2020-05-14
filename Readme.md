@@ -44,6 +44,8 @@ Remove ids from the file that does not match students.
 
 4. Create a list of part assessments (questions / subquestions)
 
+Save the list in the file `questions.txt`.
+
 The file could be structured like this
 ```
 1a	Recreate figure
@@ -51,11 +53,17 @@ The file could be structured like this
 2a	Second exercise description
 ```
 
-5. Launch the assignment-grader program
+5. Fill in rubric answers / grades in the `grades.txt` file.
+
+This step is optional.
+Can be simplified by using the `prefill-grades-rubrick.Rmd` which is 
+in the assignment-grader git repository.
+
+6. Launch the assignment-grader program
 
 ```
 cd assignment-grader
 python assignment-grader.py --student ../students.txt --questions ../questions.txt --grades ../grades.csv
 ```
 
-6. Parse the generated grades.csv file using a suitable R document / script.
+7. Parse the generated grades.csv file using a suitable R document / script like `collectedComments.Rnw`.
