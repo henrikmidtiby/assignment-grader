@@ -75,7 +75,8 @@ numberOfEvaluatedSubExercises <- data %>%
   summarise(nrow = sum(1 + 0*Point), points = sum(Point))
 
 studentsWithMoreThanThreeEvaluatedSubExercises <- numberOfEvaluatedSubExercises %>%
-  filter(nrow > 2)
+  filter(nrow > 5) %>%
+  mutate(ID = fct_drop(ID))
   
 idsAndNames <- data %>%
   select(ID) %>%
@@ -86,11 +87,15 @@ studentScores <- data %>%
   filter(ID %in% studentsWithMoreThanThreeEvaluatedSubExercises$ID) %>%
   mutate(ID = fct_drop(ID)) %>%
   group_by(ID) %>%
-  summarise(totalScore = sum(WeightedScore, na.rm = TRUE))
+  summarise(totalScore = sum(WeightedScore, na.rm = TRUE) * 100 / sum(weights$Weight))
 
 readr::write_delim(studentScores, 
                    'student_scores.csv', 
                    delim='\t')
+
+data <- data %>%
+  filter(ID %in% studentsWithMoreThanThreeEvaluatedSubExercises$ID) %>%
+  mutate(ID = fct_drop(ID))
 @
 
 \subsection{Students}
@@ -102,7 +107,8 @@ levels(data$ID)
 \subsection{Number of graded elements per student}
 Number of graded elements for each student.
 <<echo=FALSE>>=
-numberOfEvaluatedSubExercises
+numberOfEvaluatedSubExercises %>%
+  filter(nrow > 1)
 @
 
 \subsection{Not graded elements}
@@ -121,7 +127,7 @@ missingCombinations
 \newpage
 \section{Comments per student}
 <<echo=FALSE, results='asis'>>=
-for(oneId in sort(levels(data$ID)))
+for(oneId in sort(levels(studentsWithMoreThanThreeEvaluatedSubExercises$ID)))
 {
   # student_name <- subset(data, data$ID == oneId) %>% select(name) %>% unique %>% mutate(temp = toString(name)) %>% .$temp
   if(oneId %in% idsAndNames$ID)
@@ -148,7 +154,7 @@ for(oneId in sort(levels(data$ID)))
 \newpage
 \section{Grade overview}
 <<echo=FALSE, results='asis'>>=
-for(oneId in sort(levels(data$ID)))
+for(oneId in sort(levels(studentsWithMoreThanThreeEvaluatedSubExercises$ID)))
 {
   # student_name <- subset(data, data$ID == oneId) %>% select(name) %>% unique %>% mutate(temp = toString(name)) %>% .$temp
   if(oneId %in% idsAndNames$ID)
@@ -180,7 +186,6 @@ for(oneExercise in levels(data$Exercise))
   temp$strings <- sprintf("\\textbf{\\hyperref[ssecID%s]{%s} - %.1f - %.1f}: %s \\\\\n", temp$ID, temp$ID, temp$Point, temp$WeightedScore, temp$Comment)
   cat(temp$strings)
   cat("\n\n")
-
 }
 @
 
