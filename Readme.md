@@ -32,6 +32,8 @@ of the assignments.
 ```
 cd handins
 git clone git@github.com:henrikmidtiby/assignment-grader.git
+cd assignment-grader
+pipenv install
 ```
 
 3. Create a list of assignment ids and save it in the students.txt file
@@ -63,7 +65,7 @@ in the assignment-grader git repository.
 
 ```
 cd assignment-grader
-python assignment-grader.py --student ../students.txt --questions ../questions.txt --grades ../grades.csv
+pipenv run python assignment-grader.py --student ../students.txt --questions ../questions.txt --grades ../grades.csv
 ```
 
 7. Parse the generated grades.csv file using a suitable R document / script like `collectedComments.Rnw`.
