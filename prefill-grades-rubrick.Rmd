@@ -1,0 +1,55 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+list_of_exercises <- tibble(name = c("1a", "1b", "1c", "2a", "2b", "3a", "3b", "4a", "4b", "5a", "5b"))
+grading_rubrick <- tribble(~acronym, ~points, ~description, 
+                           "1", 10, "Anvender en passende strategi", 
+                           "1", 5, "Anvender en delvist passende strategi", 
+                           "1", 0, "Ingen passende strategi er anvendt", 
+                           "2", 10, "Gode og dækkende forklaringer",
+                           "2", 5, "Sparsomme forklaringer",
+                           "2", 0, "Forklaringer mangler",
+                           "3", 10, "Korrekte beregninger",
+                           "3", 5, "Mindre fejl i beregninger eller ikke afsluttede beregninger",
+                           "3", 3, "Grove fejl i beregninger eller mange mangler i beregninger",
+                           "3", 0, "Forkerte beregninger / ingen beregninger", 
+                           "4", 10, "God struktur på besvarelsen", 
+                           "4", 5, "Brugbar struktur", 
+                           "4", 0, "Strukturløs og forvirrende besvarelse")
+grading_rubrick_empty_handin <- tribble(~acronym, ~points, ~description, 
+                           "1", 0, "Ikke besvaret", 
+                           "2", 0, "Ikke besvaret",
+                           "3", 0, "Ikke besvaret", 
+                           "4", 0, "Ikke besvaret")
+```
+
+
+```{r}
+merge(list_of_exercises, grading_rubrick) %>%
+  mutate(fullname = sprintf("%s%s", name, acronym), 
+         id = sprintf("%s-%02d", fullname, points)) %>%
+  arrange(name, desc(acronym)) %>%
+  select(id, fullname, points, description) %>%
+  format_delim(delim="\t") %>% cat()
+```
+
+
+
+
+```{r}
+merge(list_of_exercises, grading_rubrick_empty_handin) %>%
+  mutate(fullname = sprintf("%s%s", name, acronym), 
+         id = sprintf("%s-%02d-empty", fullname, points)) %>%
+  arrange(name, desc(acronym)) %>%
+  select(id, fullname, points, description) %>%
+  format_delim(delim="\t") %>% cat()
+```
+
