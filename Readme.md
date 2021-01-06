@@ -65,7 +65,7 @@ in the assignment-grader git repository.
 
 ```
 cd assignment-grader
-pipenv run python assignment-grader.py --student ../students.txt --questions ../questions.txt --grades ../grades.csv
+pipenv run python assignment_grader.py --student ../students.txt --questions ../questions.txt --grades ../grades.csv
 ```
 
 7. Parse the generated grades.csv file using a suitable R document / script like `collectedComments.Rnw`.
