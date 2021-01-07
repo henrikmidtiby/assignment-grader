@@ -31,8 +31,8 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_header_point = Gtk.Label("Point")
         self.grid_header_reason = Gtk.Label("Reason")
         self.attach(self.grid_header_label, 0, 0, 1, 1)
-        self.attach(self.grid_header_point, 1, 0, 1, 1)
-        self.attach(self.grid_header_reason, 2, 0, 1, 1)
+        self.attach(self.grid_header_point, 2, 0, 1, 1)
+        self.attach(self.grid_header_reason, 3, 0, 1, 1)
 
     def reset_grid_data_structure(self):
         self.grid_labels = []
@@ -62,9 +62,9 @@ class SubQuestionGradingGrid(Gtk.Grid):
         entry_reason_min_width = 50
 
         self.add_new_question_entry_in_grid(question, description)
+        self.add_new_color_box_entry_in_grid()
         self.add_new_point_entry_in_grid(entry_point_min_width)
         self.add_new_reason_entry_in_grid(entry_reason_min_width)
-        self.add_new_color_box_entry_in_grid()
         self.grid_k += 1
 
     def add_new_question_entry_in_grid(self, question: str, description: str):
@@ -73,11 +73,17 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.attach(question_id, 0, self.grid_k, 1, 1)
         self.grid_labels.append(question_id)
 
+    def add_new_color_box_entry_in_grid(self):
+        progressbar = Gtk.ProgressBar()
+        progressbar.set_size_request(100, -1)
+        self.attach(progressbar, 1, self.grid_k, 1, 1)
+        self.eval_indicators.append(progressbar)
+
     def add_new_point_entry_in_grid(self, entry_point_min_width: float):
         point = Gtk.Entry()
         point.set_width_chars(entry_point_min_width)
         point.connect('event', self.event_catcher, self.grid_k)
-        self.attach(point, 1, self.grid_k, 1, 1)
+        self.attach(point, 2, self.grid_k, 1, 1)
         self.grid_points.append(point)
         return point
 
@@ -85,13 +91,8 @@ class SubQuestionGradingGrid(Gtk.Grid):
         reason = Gtk.Entry()
         reason.set_width_chars(entry_reason_min_width)
         reason.connect('event', self.event_catcher, self.grid_k)
-        self.attach(reason, 2, self.grid_k, 1, 1)
+        self.attach(reason, 3, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
-
-    def add_new_color_box_entry_in_grid(self):
-        progressbar = Gtk.ProgressBar()
-        self.attach(progressbar, 3, self.grid_k, 1, 1)
-        self.eval_indicators.append(progressbar)
 
     def event_catcher(self, entry, event, k: int):
         if event.type == Gdk.EventType.FOCUS_CHANGE:
