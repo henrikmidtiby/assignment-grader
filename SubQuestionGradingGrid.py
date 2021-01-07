@@ -96,6 +96,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
     def event_catcher(self, entry, event, k: int):
         if event.type == Gdk.EventType.FOCUS_CHANGE:
             self.last_updated_row = k - 1
+            self.update_eval_indicator_of_last_active_row()
             self.emit("sub_question_line_has_changed")
 
     def get_question_id_of_last_active_row(self) -> str:
@@ -113,12 +114,20 @@ class SubQuestionGradingGrid(Gtk.Grid):
         return point
 
     def set_points_for_subquestion_of_last_active_row(self, points):
+        self.eval_indicators[self.last_updated_row].set_fraction(points / 10)
         return self.grid_points[self.last_updated_row].set_text("%d" % points)
+
+    def update_eval_indicator_of_last_active_row(self):
+        points = self.get_points_for_subquestion_of_last_active_row()
+        if points is None:
+            points = 0
+        self.eval_indicators[self.last_updated_row].set_fraction(points / 10)
 
     def set_reason_for_subquestion_of_last_active_row(self, reason):
         return self.grid_reasons[self.last_updated_row].set_text(reason)
 
     def advance_active_row(self):
+        self.update_eval_indicator_of_last_active_row()
         self.emit("sub_question_line_has_changed")
         try:
             self.grid_points[self.last_updated_row + 1].grab_focus()
@@ -144,6 +153,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
         for k in range(self.grid_k):
             self.grid_points[k - 1].set_text("")
             self.grid_reasons[k - 1].set_text("")
+            self.eval_indicators[k - 1].set_fraction(0)
 
     def set_fields_to_previous_values(self, values: dict):
         for k in range(self.grid_k - 1):
