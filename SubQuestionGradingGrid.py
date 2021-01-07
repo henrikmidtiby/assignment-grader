@@ -38,6 +38,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.grid_labels = []
         self.grid_points = []
         self.grid_reasons = []
+        self.eval_indicators = []
         self.grid_k = 1
 
     def add_rows_to_grid(self, file_with_question_names: str):
@@ -63,6 +64,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
         self.add_new_question_entry_in_grid(question, description)
         self.add_new_point_entry_in_grid(entry_point_min_width)
         self.add_new_reason_entry_in_grid(entry_reason_min_width)
+        self.add_new_color_box_entry_in_grid()
         self.grid_k += 1
 
     def add_new_question_entry_in_grid(self, question: str, description: str):
@@ -85,6 +87,11 @@ class SubQuestionGradingGrid(Gtk.Grid):
         reason.connect('event', self.event_catcher, self.grid_k)
         self.attach(reason, 2, self.grid_k, 1, 1)
         self.grid_reasons.append(reason)
+
+    def add_new_color_box_entry_in_grid(self):
+        progressbar = Gtk.ProgressBar()
+        self.attach(progressbar, 3, self.grid_k, 1, 1)
+        self.eval_indicators.append(progressbar)
 
     def event_catcher(self, entry, event, k: int):
         if event.type == Gdk.EventType.FOCUS_CHANGE:
@@ -143,6 +150,7 @@ class SubQuestionGradingGrid(Gtk.Grid):
             try:
                 question_id = self.grid_labels[k].get_text()
                 points = values[question_id].score
+                self.eval_indicators[k].set_fraction(points / 10)
                 comment = values[question_id].reason
                 self.grid_points[k].set_text(str(points))
                 self.grid_reasons[k].set_text(comment)
