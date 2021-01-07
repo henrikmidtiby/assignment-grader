@@ -106,7 +106,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.h_box = Gtk.HBox(spacing=6)
         self.add_grid_entry_widget(file_with_question_names)
         self.add_list_of_reasons_widget()
-        self.v_box.pack_start(self.h_box, False, False, 0)
+        self.v_box.pack_start(self.h_box, True, True, 0)
 
     def add_grid_entry_widget(self, file_with_question_names: str):
         self.grid_with_entry = SubQuestionGradingGrid.SubQuestionGradingGrid(file_with_question_names)
