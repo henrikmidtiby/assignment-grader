@@ -92,6 +92,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.grid_with_entry.clean_all_fields()
         values = self.student_partial_grade_handler.get_partial_grades(self.current_student_id)
         self.grid_with_entry.set_fields_to_previous_values(values)
+        self.grid_with_entry.activate_first_row()
         self.student_partial_grade_handler.save_reasons_to_a_file(self.file_with_grades)
 
     def add_save_button(self):

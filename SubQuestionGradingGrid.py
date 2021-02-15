@@ -135,6 +135,9 @@ class SubQuestionGradingGrid(Gtk.Grid):
         except IndexError:
             print("Warning: Not possible to advance to next question.")
 
+    def activate_first_row(self):
+        self.grid_points[0].grab_focus()
+
     def get_all_partial_grades(self) -> List[QuestionGradeAndReason]:
         partial_grades = []
         for k in range(self.grid_k):
@@ -160,12 +163,18 @@ class SubQuestionGradingGrid(Gtk.Grid):
         for k in range(self.grid_k - 1):
             try:
                 question_id = self.grid_labels[k].get_text()
-                points = values[question_id].score
-                self.eval_indicators[k].set_fraction(points / 10)
                 comment = values[question_id].reason
+                points = values[question_id].score
                 self.grid_points[k].set_text(str(points))
                 self.grid_reasons[k].set_text(comment)
+                try:
+                    points = int(points)
+                except Exception as e:
+                    points = 0
+                self.eval_indicators[k].set_fraction(points / 10)
             except KeyError as e:
                 pass
             except Exception as e:
                 print("Exception")
+                print(e)
+                print(points)

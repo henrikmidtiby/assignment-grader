@@ -59,6 +59,14 @@ class StudentPartialGradeHandler:
         assert(student_id is not None)
         self.dict_of_score_and_reasons[student_id].clear()
         for grade in partial_grades:
+            if type(grade.grade) == "str":
+                try:
+                    grade.grade = int(grade.grade)
+                except Exception as e:
+                    print(e)
+                    print(grade.grade)
+                    print(grade.reason)
+                    grade.grade = 0
             score_and_reason = ScoreAndReason(grade.grade, grade.reason)
             self.dict_of_score_and_reasons[student_id][grade.question_id] = score_and_reason
         self.rebuild_dict_of_reasons()
