@@ -51,6 +51,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         earlier used descriptions are inserted below.
         """
         self.list_of_reasons_buffer.set_text("%s\n" % question_description)
+        self.insert_point_and_reason_in_list(question, 0, "Ikke besvaret", partial_grade_handler)
         if point is None:
             self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
         else:
