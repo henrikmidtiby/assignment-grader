@@ -145,7 +145,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
     def add_list_of_reasons_widget(self):
         self.list_of_reasons = ListOfReasonsWidget.ListOfReasonsWidget()
         self.list_of_reasons.connect('reason_selected', self.update_reason_for_current_question)
-        self.h_box.pack_start(self.list_of_reasons, False, False, 0)
+        self.h_box.pack_start(self.list_of_reasons, True, True, 0)
 
     def update_reason_for_current_question(self, placeholder, point: int, reason: str):
         self.grid_with_entry.set_points_for_subquestion_of_last_active_row(point)
