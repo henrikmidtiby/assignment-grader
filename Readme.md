@@ -36,6 +36,12 @@ cd assignment-grader
 pipenv install
 ```
 
+It might be needed to install the following development libraries.
+```
+sudo apt install libcairo2-dev
+sudo apt install libgirepository1.0-dev
+```
+
 3. Create a list of assignment ids and save it in the students.txt file
 
 ```
@@ -48,12 +54,16 @@ Remove ids from the file that does not match students.
 
 Save the list in the file `questions.txt`.
 
-The file could be structured like this
+The file must be structured with three columns like this:
 ```
-1a	Recreate figure
-1b	Describe content of figure
-2a	Second exercise description
+1a	5	Recreate figure
+1b	6	Describe content of figure
+2a	2	Second exercise description
 ```
+The first column is the question id, 
+the second column is the weight assigned to the question and 
+the third column is a description of question
+
 
 5. Fill in rubric answers / grades in the `grades.txt` file.
 
