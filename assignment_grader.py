@@ -116,7 +116,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.scrolled_window.set_border_width(20)
         self.scrolled_window.set_min_content_width(600)
         self.scrolled_window.set_max_content_width(600)
-        self.scrolled_window.set_min_content_height(900)
+        self.scrolled_window.set_min_content_height(700)
         self.scrolled_window.set_max_content_height(1500)
         # TODO: Fix this so it is possible to resize the main window.
         self.scrolled_window.set_vexpand(True)
