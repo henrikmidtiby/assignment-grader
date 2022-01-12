@@ -52,7 +52,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.v_box = Gtk.VBox()
         self.add(self.v_box)
         self.add_student_selector(file_with_student_names)
-        self.add_save_button()
+        self.add_buttons()
         self.add_grid_entry_and_reason_list(file_with_question_names)
 
     def initialise_view(self):
@@ -95,10 +95,26 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.grid_with_entry.activate_first_row()
         self.student_partial_grade_handler.save_reasons_to_a_file(self.file_with_grades)
 
-    def add_save_button(self):
+    def add_buttons(self):
+        self.button_box = Gtk.HBox()
+        next_student_button = Gtk.Button.new_with_label("Next student")
+        next_student_button.connect("clicked", self.on_next_student_button_clicked)
+        previous_student_button = Gtk.Button.new_with_label("Previuos student")
+        previous_student_button.connect("clicked", self.on_previous_student_button_clicked)
         button = Gtk.Button.new_with_label("Save")
         button.connect("clicked", self.on_save_button_clicked)
-        self.v_box.pack_start(button, False, False, 0)
+        self.button_box.pack_start(next_student_button, False, False, 0)
+        self.button_box.pack_start(previous_student_button, False, False, 0)
+        self.button_box.pack_start(button, False, False, 0)
+        self.v_box.pack_start(self.button_box, False, False, 0)
+
+    def on_next_student_button_clicked(self, t1):
+        current_index = self.name_combo.get_active()
+        self.name_combo.set_active(current_index + 1)
+
+    def on_previous_student_button_clicked(self, t1):
+        current_index = self.name_combo.get_active()
+        self.name_combo.set_active(current_index - 1)
 
     def on_save_button_clicked(self, t1):
         self.student_partial_grade_handler.save_reasons_to_a_file(self.file_with_grades)
