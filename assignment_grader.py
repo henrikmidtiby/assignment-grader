@@ -156,7 +156,8 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         question_id = self.grid_with_entry.get_question_id_of_last_active_row()
         question_description = self.grid_with_entry.get_question_description_of_last_active_row()
         point = self.grid_with_entry.get_points_for_subquestion_of_last_active_row()
-        self.list_of_reasons.update_list_of_reasons(question_id, question_description, point, self.student_partial_grade_handler)
+        reason = self.grid_with_entry.get_reason_for_subquestion_of_last_active_row()
+        self.list_of_reasons.update_list_of_reasons(question_id, question_description, point, reason, self.student_partial_grade_handler)
 
     def add_list_of_reasons_widget(self):
         self.list_of_reasons = ListOfReasonsWidget.ListOfReasonsWidget()

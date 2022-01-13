@@ -100,12 +100,20 @@ class SubQuestionGradingGrid(Gtk.Grid):
             self.last_updated_row = k - 1
             self.update_eval_indicator_of_last_active_row()
             self.emit("sub_question_line_has_changed")
+        if event.type == Gdk.EventType.KEY_RELEASE:
+            self.last_updated_row = k - 1
+            self.update_eval_indicator_of_last_active_row()
+            self.emit("sub_question_line_has_changed")
 
     def get_question_id_of_last_active_row(self) -> str:
         return self.grid_labels[self.last_updated_row].get_text()
 
     def get_question_description_of_last_active_row(self) -> str:
         return self.grid_labels[self.last_updated_row].get_tooltip_text()
+
+    def get_reason_for_subquestion_of_last_active_row(self):
+        reason_str = self.grid_reasons[self.last_updated_row].get_text()
+        return reason_str
 
     def get_points_for_subquestion_of_last_active_row(self):
         point_str = self.grid_points[self.last_updated_row].get_text()

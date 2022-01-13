@@ -46,7 +46,7 @@ class ListOfReasonsWidget(Gtk.TextView):
             reason = res.group(2)
             return point, reason
 
-    def update_list_of_reasons(self, question: str, question_description: str, point, partial_grade_handler):
+    def update_list_of_reasons(self, question: str, question_description: str, point, reason: str, partial_grade_handler):
         """
         Is called when the list of reasons for a certain sub evaluation should be updated.
         Then the description of the question is inserted on the first line and the
@@ -55,7 +55,10 @@ class ListOfReasonsWidget(Gtk.TextView):
         self.list_of_reasons_buffer.set_text("%s\n" % question_description)
         self.insert_point_and_reason_in_list(question, 0, "Ikke besvaret", partial_grade_handler)
         if point is None:
-            self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
+            if reason is "":
+                self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
+            else:
+                self.show_add_given_reasons_for_this_question_filtered_on_text(partial_grade_handler, question, reason)
         else:
             self.show_given_reasons_close_to_the_score(partial_grade_handler, point, question)
 
@@ -63,6 +66,13 @@ class ListOfReasonsWidget(Gtk.TextView):
         point_keys = partial_grade_handler.dict_of_reasons[question].keys()
         for point_key in sorted(point_keys, key=lambda temp: int('%s0' % temp)):
             self.given_point_insert_all_matching_reasons(point_key, question, partial_grade_handler)
+
+    def show_add_given_reasons_for_this_question_filtered_on_text(self, partial_grade_handler, question: str, query: str):
+        point_keys = partial_grade_handler.dict_of_reasons[question].keys()
+        for point_key in point_keys:
+            for reason_key in partial_grade_handler.dict_of_reasons[question][point_key].keys():
+                if reason_key.find(query) is not -1:
+                    self.insert_point_and_reason_in_list(question, point_key, reason_key, partial_grade_handler)
 
     def show_given_reasons_close_to_the_score(self, partial_grade_handler, point: int, question: str):
         self.given_point_insert_all_matching_reasons(point - 1, question, partial_grade_handler)
