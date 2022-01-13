@@ -99,7 +99,7 @@ class AssignmentGrader(Gtk.ApplicationWindow):
         self.button_box = Gtk.HBox()
         next_student_button = Gtk.Button.new_with_label("Next student")
         next_student_button.connect("clicked", self.on_next_student_button_clicked)
-        previous_student_button = Gtk.Button.new_with_label("Previuos student")
+        previous_student_button = Gtk.Button.new_with_label("Previous student")
         previous_student_button.connect("clicked", self.on_previous_student_button_clicked)
         button = Gtk.Button.new_with_label("Save")
         button.connect("clicked", self.on_save_button_clicked)
