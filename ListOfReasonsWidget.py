@@ -55,7 +55,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         self.list_of_reasons_buffer.set_text("%s\n" % question_description)
         self.insert_point_and_reason_in_list(question, 0, "Ikke besvaret", partial_grade_handler)
         if point is None:
-            if reason is "":
+            if reason == "":
                 self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
             else:
                 self.show_add_given_reasons_for_this_question_filtered_on_text(partial_grade_handler, question, reason)
@@ -71,7 +71,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         point_keys = partial_grade_handler.dict_of_reasons[question].keys()
         for point_key in point_keys:
             for reason_key in partial_grade_handler.dict_of_reasons[question][point_key].keys():
-                if reason_key.find(query) is not -1:
+                if reason_key.find(query) != -1:
                     self.insert_point_and_reason_in_list(question, point_key, reason_key, partial_grade_handler)
 
     def show_given_reasons_close_to_the_score(self, partial_grade_handler, point: int, question: str):
