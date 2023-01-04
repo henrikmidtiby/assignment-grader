@@ -54,6 +54,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         """
         self.list_of_reasons_buffer.set_text("%s\n" % question_description)
         self.insert_point_and_reason_in_list(question, 0, "Ikke besvaret", partial_grade_handler)
+        self.insert_point_and_reason_in_list(question, 10, "Fin besvarelse", partial_grade_handler)
         if point is None:
             if reason == "":
                 self.show_add_given_reasons_for_this_question(partial_grade_handler, question)
