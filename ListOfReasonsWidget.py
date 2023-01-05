@@ -86,7 +86,8 @@ class ListOfReasonsWidget(Gtk.TextView):
 
     def insert_point_and_reason_in_list(self, question: str, point, reason: str, partial_grade_handler):
         multiplicity = partial_grade_handler.dict_of_reasons[question][str(point)][reason]
+        multiplicity_string = "x" * ((multiplicity + 1) // 2)
         end_iter = self.list_of_reasons_buffer.get_end_iter()
-        new_reason = "%2s (%s) - %s" % (point, multiplicity, reason)
+        new_reason = "%2s (%s) - %s" % (point, multiplicity_string, reason)
         self.list_of_reasons_buffer.insert_with_tags(end_iter, new_reason, self.reason_tag)
         self.list_of_reasons_buffer.insert(end_iter, "\n")
