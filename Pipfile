@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 pygobject = "*"
 icecream = "*"
+mypy = "*"
 
 [requires]
 python_version = "3"
