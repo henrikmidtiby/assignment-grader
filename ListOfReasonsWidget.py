@@ -40,7 +40,7 @@ class ListOfReasonsWidget(Gtk.TextView):
         return clicked_reason
 
     def interpret_clicked_reason(self, clicked_reason: str) -> Tuple[int, str]:
-        pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
+        pattern = re.compile('\s*(\d+) \(x*\) - (.*)')
         res = pattern.match(clicked_reason)
         if res:
             point = int(res.group(1))
