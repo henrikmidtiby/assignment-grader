@@ -1,9 +1,9 @@
 import re
-import gi
+import gi # type: ignore
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GObject
+from gi.repository import Gtk, Gdk, GObject # type: ignore
 from DebugDecorator import debug
-from icecream import ic
+from icecream import ic # type: ignore
 
 
 class ListOfReasonsWidget(Gtk.TextView):

@@ -1,8 +1,8 @@
 import re
 import sys
-import gi
+import gi # type: ignore
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, Gio
+from gi.repository import Gtk, Gdk, Gio # type: ignore
 import argparse
 import StudentPartialGradeHandler
 import SubQuestionGradingGrid
@@ -40,10 +40,10 @@ class AssignmentGrader(Gtk.ApplicationWindow):
     def __init__(self, app, file_with_question_names: str, file_with_student_names: str, file_with_grades: str) -> None:
         self.student_partial_grade_handler = StudentPartialGradeHandler.StudentPartialGradeHandler()
         self.list_of_reasons = None
-        self.grid_with_entry: SubQuestionGradingGrid.SubQuestionGradingGrid = None
+        self.grid_with_entry: SubQuestionGradingGrid.SubQuestionGradingGrid = None # type: ignore
         self.h_box: Gtk.HBox = None
         self.current_student_id = None
-        self.name_store: list = None
+        self.name_store: list = None # type: ignore
         self.name_combo = None
         self.file_with_grades = file_with_grades
         Gtk.Window.__init__(self, title="Assignment grader", application=app)

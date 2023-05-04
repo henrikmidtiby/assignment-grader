@@ -1,10 +1,10 @@
 import re
 import collections
-import gi
+import gi # type: ignore
 from typing import List
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GObject
-from icecream import ic
+from gi.repository import Gtk, Gdk, GObject # type: ignore
+from icecream import ic # type: ignore
 
 StudentAndPartialGrades = collections.namedtuple('StudentAndPartialGrades', ['student_id', 'partial_grades'])
 QuestionGradeAndReason = collections.namedtuple('QuestionGradeAndReason', ['question_id', 'grade', 'reason'])
