@@ -46,6 +46,7 @@ class ListOfReasonsWidget(Gtk.TextView):
             point = int(res.group(1))
             reason = res.group(2)
             return point, reason
+        return 0, "This should not happen"
 
     def update_list_of_reasons(self, question: str, question_description: str, point, reason: str, partial_grade_handler):
         """
