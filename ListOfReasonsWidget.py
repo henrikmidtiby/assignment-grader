@@ -4,6 +4,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject # type: ignore
 from DebugDecorator import debug
 from icecream import ic # type: ignore
+from typing import Tuple
 
 
 class ListOfReasonsWidget(Gtk.TextView):
@@ -31,14 +32,14 @@ class ListOfReasonsWidget(Gtk.TextView):
             self.emit('reason_selected', point, reason)
             return True
 
-    def get_content_of_reason_tag_indicated_by_iter(self, iter):
+    def get_content_of_reason_tag_indicated_by_iter(self, iter) -> str:
         end_iter = iter.copy()
         end_iter.forward_to_tag_toggle(self.reason_tag)
         iter.backward_to_tag_toggle(self.reason_tag)
         clicked_reason = self.list_of_reasons_buffer.get_text(iter, end_iter, False)
         return clicked_reason
 
-    def interpret_clicked_reason(self, clicked_reason: str):
+    def interpret_clicked_reason(self, clicked_reason: str) -> Tuple[int, str]:
         pattern = re.compile('\s*(\d+) \(\d+\) - (.*)')
         res = pattern.match(clicked_reason)
         if res:
